@@ -55,7 +55,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Employee View
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/employees', async (req, res) => {
     try {
       const query = 'SELECT * FROM display_employee_view';
       console.log('Running query:', query);
@@ -74,7 +74,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Location View
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/locations', async (req, res) => {
     try {
       const query = 'SELECT * FROM display_location_view';
       console.log('Running query:', query);
@@ -93,7 +93,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Product View
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/products', async (req, res) => {
     try {
       const query = 'SELECT * FROM display_product_view';
       console.log('Running query:', query);
@@ -112,7 +112,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Service View
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/services', async (req, res) => {
     try {
       const query = 'SELECT * FROM display_service_view';
       console.log('Running query:', query);
@@ -131,7 +131,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Vans Table 
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/vans', async (req, res) => {
     try {
       const query = 'SELECT * FROM business_supply.vans';
       console.log('Running query:', query);
@@ -150,7 +150,7 @@ app.get('/api/drivers', async (req, res) => {
 });
 
 // Businesses Table 
-app.get('/api/drivers', async (req, res) => {
+app.get('/api/businesses', async (req, res) => {
     try {
       const query = 'SELECT * FROM business_supply.businesses';
       console.log('Running query:', query);
