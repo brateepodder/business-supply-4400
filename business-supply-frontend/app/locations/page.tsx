@@ -5,18 +5,17 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 
 // Adjust the interface to match the data from the API
 interface Owner {
-  username: string;
-  first_name: string;
-  last_name: string;
-  address: string;
-  num_businesses: number;
-  num_places: number;
-  highs: number;
-  lows: number;
-  debt: string;
+  label: string;
+  long_name: string;
+  x_coord: string;
+  y_coord: string;
+  space: number;
+  num_vans: number;
+  van_ids: string;
+  remaining_capacity: number;
 }
 
-export default function OwnersPage() {
+export default function LocationsPage() {
   const [owners, setOwners] = useState<Owner[]>([]); // State to store the owner data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
 
