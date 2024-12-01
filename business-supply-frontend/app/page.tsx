@@ -6,10 +6,20 @@ import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from 
 export default function Home() {
   return (
     <div>
-      <h1 className="text-4xl font-bold text-gray-600 text-center my-6">Welcome to Business Supply</h1>
-      <p className="text-center mb-6">Manage your business efficiently with our platform.</p>
-
-      <h2 className="text-2xl font-semibold text-gray-600 text-center my-6">Overview of Pages and Procedures</h2>
+      <div className="px-4 py-6">
+        <h1 className="text-4xl font-bold mb-4 text-gray-600 text-center">
+          Welcome to Business Supply
+        </h1>
+        <p className="text-center mb-4">
+          Manage your business efficiently with our platform.
+        </p>
+        <p className="text-center">
+          In this platform, each page has a view and several stored procedures
+          that you can use to add information to the database. The table below
+          shows where each of the views and the stored procedures are located
+          your convenience.
+        </p>
+      </div>
 
       <Table aria-label="Overview of Pages and Procedures">
         <TableHeader>

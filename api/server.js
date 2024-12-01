@@ -5,6 +5,7 @@ const app = express();
 
 // Setup CORS to allow frontend to communicate with backend
 app.use(cors());
+app.use(express.json());
 
 const db = mysql.createConnection({
     host: 'localhost',
@@ -176,3 +177,52 @@ app.get('/api/businesses', async (req, res) => {
 app.listen(5000, '0.0.0.0', () => {
   console.log('Server is running on http://localhost:5000');
 });
+
+// STORED PROCEDURES
+
+// ADD OWNER - add_owner()
+app.post("/api/add-owner", async (req, res) => {
+    const { username, first_name, last_name, address, birthdate } = req.body;
+
+    console.log("Received data:", req.body);
+
+    // Validate form fields
+    if (!username || !birthdate) {
+        console.log("Validation failed: Username and birthday are required.");
+        return res.status(400).json({ message: "Username and birthday are required." });
+    }
+
+    const query = `CALL business_supply.add_owner(?, ?, ?, ?, ?);`;
+    const values = [username, first_name, last_name, address, birthdate];
+
+    try {
+        db.query(query, values, (err, results) => {
+            if (err) {
+                console.error("MySQL Error:", err);
+                return res.status(500).json({ message: "Database error." });
+            }
+
+            console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+            // Extract the message from the first result set
+            const procedureMessage = results?.[0]?.[0]?.message;
+
+            if (procedureMessage) {
+                console.log("Procedure message:", procedureMessage);
+                // Send the procedure message to the frontend and exit
+                return res.json({ message: procedureMessage });
+            }
+
+            // Default success case
+            console.log("Owner added successfully.");
+            return res.json({ message: "Owner added successfully!" });
+        });
+    } catch (error) {
+        console.error("Server Error:", error);
+        res.status(500).json({ message: "Internal server error." });
+    }
+});
+
+
+  
+
