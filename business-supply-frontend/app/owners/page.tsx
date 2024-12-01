@@ -13,6 +13,7 @@ import { Input } from "@nextui-org/react";
 import { CircularProgress } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
+import { Divider } from "@nextui-org/react";
 
 // Adjust the interface to match the data from the API
 interface Owner {
@@ -28,12 +29,11 @@ interface Owner {
 }
 
 export default function OwnersPage() {
-
   // State to store owner loading data
   const [owners, setOwners] = useState<Owner[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Form data for add owner form 
+  // Form data for add owner form
   const [formData, setFormData] = useState({
     username: "",
     first_name: "",
@@ -41,11 +41,11 @@ export default function OwnersPage() {
     address: "",
     birthdate: "",
   });
-  
+
   // Message from backend - add_owner()
   const [message, setMessage] = useState<string | null>(null);
 
-  // Add Owner Form error 
+  // Add Owner Form error
   const [addOwnerFormError, setAddOwnerFormError] = useState<string | null>(
     null,
   );
@@ -53,7 +53,7 @@ export default function OwnersPage() {
   // Errors from fetching owner view
   const [tableFetchError, setTableFetchError] = useState<string | null>(null);
 
-  // Form data for start funding form 
+  // Form data for start funding form
   const [fundingData, setFundingData] = useState({
     owner: "",
     amount: "",
@@ -84,45 +84,46 @@ export default function OwnersPage() {
     };
 
     fetchOwners();
-  }, []); // Empty dependency array means this runs once when the component mounts
+  }, []);
 
-  // Handle add-owners form input change
+  // Handle add_owners() form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submission
+  // Handle add_owners() form submission
   const handleAddOwnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     // Clear previous messages
     setMessage(null);
     setAddOwnerFormError(null);
-  
+
     // Validate form fields
     if (!formData.username || !formData.birthdate) {
       setAddOwnerFormError("Please add a username and a birthdate.");
+
       return;
     }
-  
+
     try {
-      console.log("Submitting form with data:", formData); // Log form data being sent
-  
+      console.log("Submitting form with data:", formData);
+
       const response = await fetch("http://localhost:5000/api/add-owner", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
-  
-      const result = await response.json(); // Parse response JSON
-      console.log("Response from server:", result); // Log the response from the server
-  
-      // Check if the procedure message indicates an error
+
+      const result = await response.json();
+
+      console.log("Response from server:", result);
+
       if (result.message === "Username already exists, select unique one.") {
-        setAddOwnerFormError(result.message); // Display the procedure message as an error
+        setAddOwnerFormError(result.message);
       } else if (response.ok) {
         // On success, update the UI and reset the form
-        setMessage("Successfully added owner!"); // Success message
+        setMessage("Successfully added owner!");
         setFormData({
           username: "",
           first_name: "",
@@ -130,10 +131,10 @@ export default function OwnersPage() {
           address: "",
           birthdate: "",
         });
-  
-        // Optionally, refetch owners to refresh the table
+
         const updatedOwners = await fetch("http://localhost:5000/api/owners");
         const newOwners = await updatedOwners.json();
+
         setOwners(newOwners);
       } else {
         setAddOwnerFormError(result.message || "An error occurred.");
@@ -143,14 +144,71 @@ export default function OwnersPage() {
       setAddOwnerFormError("Failed to add owner.");
     }
   };
-  
+
+  // Handle funding form input changes
+  const handleFundingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFundingData({ ...fundingData, [e.target.name]: e.target.value });
+  };
+
+  // Handle funding form submission
+  const handleFundingSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFundingMessage(null);
+
+    if (
+      !fundingData.owner ||
+      !fundingData.amount ||
+      !fundingData.business ||
+      !fundingData.fundDate
+    ) {
+      setFundingMessage("All fields are required.");
+
+      return;
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/start-funding", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ip_owner: fundingData.owner,
+          ip_amount: parseInt(fundingData.amount),
+          ip_long_name: fundingData.business,
+          ip_fund_date: fundingData.fundDate,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.message === "Successfully started funding.") {
+        setFundingMessage("Funding started successfully!");
+      } else {
+        setFundingMessage(result.message || "An error occurred.");
+      }
+    } catch (error) {
+      console.error("Error starting funding:", error);
+      setFundingMessage("Failed to start funding.");
+    }
+  };
 
   return (
     <div className="grid place-items-center min-h-screen">
-      {/* Display the heading for the Owners View */}
       <h1 className="text-4xl font-bold text-gray-600 text-center my-6">
         Owners View
       </h1>
+      <p className="text-slate-500 mb-8 text-center">
+        This view displays information in the system from the perspective of an
+        owner. <br></br>
+      </p>
+      <p className="text-slate-500 mb-8 text-center">
+        For each owner, it includes the owner&apos;s information, along with the
+        number of businesses for which they provide funds and the number of
+        different places where those businesses are located. It also includes
+        the highest and lowest ratings for each of those businesses, as well as
+        the total amount of debt based on the money spent purchasing products by
+        all of those businesses. And if an owner does not fund any businesses
+        then display zeros for the highs, lows and debt.
+      </p>
 
       {/* Display message related to the owners data */}
       {tableFetchError && (
@@ -158,13 +216,7 @@ export default function OwnersPage() {
       )}
 
       {loading ? (
-        <CircularProgress
-          aria-label="Loading..."
-          color="warning"
-          showValueLabel={true}
-          size="lg"
-          value={100}
-        />
+        <CircularProgress aria-label="Loading..." />
       ) : (
         <Table aria-label="Owners List">
           <TableHeader>
@@ -192,14 +244,26 @@ export default function OwnersPage() {
         </Table>
       )}
 
+      <Divider className="mt-20 mb-10" />
+      <h1 className="text-4xl font-bold text-gray-700 mb-4 text-center">
+        Owner-Related Procedures
+      </h1>
+
       {/* Add Owner Form */}
-      <div className="my-8">
+      <div className="my-8 w-full">
         <h2 className="text-2xl font-bold text-gray-700 mb-4 text-center">
           Add Owner
         </h2>
+        <p className="text-slate-500 mb-8 text-center">
+          This stored procedure creates a new owner. A new owner must have a
+          unique username.
+        </p>
         <Card>
           <div className="my-8 mx-5">
-            <form className="flex items-center gap-4" onSubmit={handleAddOwnerSubmit}>
+            <form
+              className="flex items-center gap-4 w-full"
+              onSubmit={handleAddOwnerSubmit}
+            >
               <Input
                 className="flex-1"
                 label="Username"
@@ -240,12 +304,14 @@ export default function OwnersPage() {
                 value={formData.birthdate}
                 onChange={handleChange}
               />
-              <Button color="primary" type="submit">Add Owner</Button>
+              <Button color="primary" type="submit">
+                Add Owner
+              </Button>
             </form>
 
             {/* Display form-specific errors */}
             {addOwnerFormError && (
-              <p className="text-center text-red-700 mt-8">
+              <p className="text-center text-red-600 mt-8">
                 {addOwnerFormError}
               </p>
             )}
@@ -253,6 +319,72 @@ export default function OwnersPage() {
             {/* Display success message */}
             {message && (
               <p className="text-center text-green-700 mt-8">{message}</p>
+            )}
+          </div>
+        </Card>
+      </div>
+
+      {/* Funding Form */}
+      <div className="my-8 w-full">
+        <h2 className="text-2xl font-bold text-gray-700 mb-4 text-center">
+          Start Funding
+        </h2>
+        <p className="text-slate-500 mb-8 text-center">
+          This stored procedure opens a channel for a business owner to provide
+          funds to a business. The owner and business must be valid.
+        </p>
+        <Card>
+          <div className="my-8 mx-5">
+            <form
+              className="flex items-center gap-4 w-full"
+              onSubmit={handleFundingSubmit}
+            >
+              <Input
+                className="flex-1"
+                label="Username"
+                name="owner"
+                type="text"
+                value={fundingData.owner}
+                onChange={handleFundingChange}
+              />
+              <Input
+                className="flex-1"
+                label="Amount"
+                name="amount"
+                type="number"
+                value={fundingData.amount}
+                onChange={handleFundingChange}
+              />
+              <Input
+                className="flex-1"
+                label="Business Name"
+                name="business"
+                type="text"
+                value={fundingData.business}
+                onChange={handleFundingChange}
+              />
+              <Input
+                className="flex-1"
+                label="Funding Date"
+                name="fundDate"
+                type="date"
+                value={fundingData.fundDate}
+                onChange={handleFundingChange}
+              />
+              <Button color="primary" type="submit">
+                Start Funding
+              </Button>
+            </form>
+            {fundingMessage && (
+              <p
+                className={`text-center mt-8 ${
+                  fundingMessage.includes("successfully")
+                    ? "text-green-700"
+                    : "text-red-600"
+                }`}
+              >
+                {fundingMessage}
+              </p>
             )}
           </div>
         </Card>

@@ -24,6 +24,7 @@ export const Navbar = () => {
     { label: "Products", href: "/products" },
     { label: "Vans", href: "/vans" },
     { label: "Businesses", href: "/businesses" },
+    { label: "Workers", href: "/workers" }
   ];
 
   return (

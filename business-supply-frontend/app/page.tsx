@@ -10,10 +10,10 @@ export default function Home() {
         <h1 className="text-4xl font-bold mb-4 text-gray-600 text-center">
           Welcome to Business Supply
         </h1>
-        <p className="text-center mb-4">
+        <p className="text-center mb-4 text-slate-500">
           Manage your business efficiently with our platform.
         </p>
-        <p className="text-center">
+        <p className="text-center text-slate-500">
           In this platform, each page has a view and several stored procedures
           that you can use to add information to the database. The table below
           shows where each of the views and the stored procedures are located
@@ -43,7 +43,7 @@ export default function Home() {
           </TableRow>
           <TableRow>
             <TableCell>Employees</TableCell>
-            <TableCell>add_employee(), add_worker_role(), hire_employee(), fire_employee()</TableCell>
+            <TableCell>add_employee(), hire_employee(), fire_employee()</TableCell>
             <TableCell>display_employees_view()</TableCell>
             <TableCell>This page manages employee actions, including adding employees, assigning roles, and hiring/firing employees.</TableCell>
           </TableRow>
@@ -82,6 +82,12 @@ export default function Home() {
             <TableCell>add_business(), purchase_product()</TableCell>
             <TableCell>Business table</TableCell>
             <TableCell>This page deals with businesses, including adding businesses and managing product purchases.</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell>Workers</TableCell>
+            <TableCell>add_worker_role()</TableCell>
+            <TableCell>Worker Table</TableCell>
+            <TableCell>This page deals with workers and making employees workers of certain services.</TableCell>
           </TableRow>
         </TableBody>
       </Table>
