@@ -15,10 +15,12 @@ const db = mysql.createConnection({
     port: 3306 // Default MySQL port (you can change it if necessary)
   });
 
+// FETCHING USERNAMES FOR AUTOCOMPLETES
+
 // Fetching all usernames
 // Endpoint to fetch all usernames
 app.get("/api/usernames", async (req, res) => {
-  const query = "SELECT username FROM users"; // Adjust the table name as needed
+  const query = "SELECT username FROM users";
   try {
     db.query(query, (err, results) => {
       if (err) {
@@ -28,6 +30,46 @@ app.get("/api/usernames", async (req, res) => {
 
       const usernames = results.map((row) => row.username);
       res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching owner's usernames
+app.get("/api/owner-usernames", async (req, res) => {
+  const query = "SELECT username FROM business_supply.display_owner_view";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.username);
+      console.log("Owner usernames: ", usernames);
+      res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching businesses's names
+app.get("/api/businesses-names", async (req, res) => {
+  const query = "SELECT long_name FROM business_supply.businesses";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const business_names = results.map((row) => row.username);
+      console.log("Business Names Fetching API result: ", business_names);
+      res.json(business_names);
     });
   } catch (error) {
     console.error("Server error:", error);

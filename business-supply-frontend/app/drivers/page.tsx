@@ -14,6 +14,7 @@ import {
   Autocomplete,
   AutocompleteItem,
   Input,
+  CircularProgress,
 } from "@nextui-org/react";
 import axios from "axios";
 
@@ -33,44 +34,44 @@ export default function DriversPage() {
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch usernames for the Autocomplete
+  const fetchUsernames = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/usernames");
+      const formattedUsernames = response.data.map((username: string) => ({
+        label: username,
+        value: username,
+      }));
+
+      setUsernames(formattedUsernames);
+    } catch (err) {
+      console.error("Error fetching usernames:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsernames = async () => {
-      try {
-        const response = await axios.get("http://localhost:5000/api/usernames");
-        const formattedUsernames = response.data.map((username: string) => ({
-          label: username,
-          value: username,
-        }));
-
-        setUsernames(formattedUsernames);
-      } catch (err) {
-        console.error("Error fetching usernames:", err);
-      }
-    };
-
     fetchUsernames();
   }, []);
 
   // Fetch the drivers data from the backend
+  const fetchDrivers = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/drivers");
+
+      if (!response.ok) throw new Error("Failed to fetch drivers");
+
+      const data = await response.json();
+
+      setDrivers(data); // Update state with fetched data
+    } catch (error) {
+      console.error("Error fetching drivers:", error);
+    } finally {
+      setLoading(false); // Ensure loading is set to false
+    }
+  };
+
   useEffect(() => {
-    const fetchDrivers = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/drivers");
-
-        if (!response.ok) throw new Error("Failed to fetch drivers");
-
-        const data = await response.json();
-
-        setDrivers(data);
-      } catch (error) {
-        console.error("Error fetching drivers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchDrivers();
-  }, []);
+  }, []); // Runs only once when the component mounts
 
   // Handle Autocomplete selection
   const handleAutocompleteSelect = (key: string, value: string) => {
@@ -135,6 +136,8 @@ export default function DriversPage() {
           result.message.includes("Successfully"))
       ) {
         setTakeoverVanMessage("Successfully tookover van.");
+        await fetchDrivers(); // Refresh the drivers table
+        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setTakeoverVanMessage(result.message || "An error occurred.");
       }
@@ -195,6 +198,8 @@ export default function DriversPage() {
           result.message.includes("Successfully"))
       ) {
         setRemoveDriverRoleMessage("Successfully removed driver.");
+        await fetchDrivers(); // Refresh the drivers table
+        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setRemoveDriverRoleMessage(result.message || "An error occurred.");
       }
@@ -266,6 +271,8 @@ export default function DriversPage() {
           result.message.includes("Successfully"))
       ) {
         setAddDriverRoleMessage("Successfully added driver role.");
+        await fetchDrivers(); // Refresh the drivers table
+        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setAddDriverRoleMessage(result.message || "An error occurred.");
       }
@@ -276,12 +283,20 @@ export default function DriversPage() {
   };
 
   return (
-    <div>
+    <div className="grid place-items-center min-h-screen">
       <h1 className="text-4xl font-bold text-gray-600 text-center my-6">
-        Drivers View
+        Driver&apos;s View
       </h1>
+      <p className="text-slate-500 mb-8 text-center">
+        This view displays information in the system from the perspective of a
+        driver.
+      </p>
+      <p className="text-slate-500 mb-8 text-center">
+        For each driver, it includes the username, licenseID and drivering
+        experience, along with the number of vans that they are controlling.
+      </p>
       {loading ? (
-        <p>Loading...</p>
+        <CircularProgress aria-label="Loading..." />
       ) : (
         <Table aria-label="Drivers List">
           <TableHeader>
@@ -324,11 +339,12 @@ export default function DriversPage() {
               onSubmit={handleAddDriverRoleSubmit}
             >
               <Autocomplete
+                required
                 className="w-auto max-w-xs"
                 defaultItems={usernames}
                 label="Select Username"
                 placeholder="Search for a username"
-                onSelectionChange={(selected) =>
+                onSelectionChange={(selected: string) =>
                   handleAutocompleteSelect("addDriverRole", selected)
                 }
               >
@@ -384,7 +400,8 @@ export default function DriversPage() {
               <div className="mt-8 text-center">
                 <p
                   className={`${
-                    addDriverRoleMessage.includes("successfully") || addDriverRoleMessage.includes("Successfully")
+                    addDriverRoleMessage.includes("successfully") ||
+                    addDriverRoleMessage.includes("Successfully")
                       ? "text-green-700"
                       : "text-red-600"
                   }`}
@@ -451,7 +468,8 @@ export default function DriversPage() {
             {takeoverVanMessage && (
               <p
                 className={`text-center mt-8 ${
-                  takeoverVanMessage.includes("successfully") || takeoverVanMessage.includes("Successfully")
+                  takeoverVanMessage.includes("successfully") ||
+                  takeoverVanMessage.includes("Successfully")
                     ? "text-green-700"
                     : "text-red-600"
                 }`}

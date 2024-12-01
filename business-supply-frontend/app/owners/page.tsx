@@ -8,12 +8,17 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  Autocomplete,
+  AutocompleteItem,
+  user,
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 import { CircularProgress } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@nextui-org/react";
+import axios from "axios";
+import { useAsyncList } from "@react-stately/data";
 
 // Adjust the interface to match the data from the API
 interface Owner {
@@ -33,6 +38,70 @@ export default function OwnersPage() {
   const [owners, setOwners] = useState<Owner[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Fetch the owners data from the backend
+  const fetchOwners = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/owners");
+
+      if (!response.ok) throw new Error("Failed to fetch owners");
+
+      const data = await response.json();
+
+      setOwners(data); // Set the owner data into state
+    } catch (error) {
+      console.error(error);
+      setTableFetchError("Failed to load the owners list.");
+    } finally {
+      setLoading(false); // Set loading to false when the request is done
+    }
+  };
+
+  useEffect(() => {
+    fetchOwners();
+  }, []);
+
+  // Use useAsyncList to load all usernames and filter locally
+  let ownerList = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch(
+          "http://localhost:5000/api/owner-usernames",
+          { signal },
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch owner usernames");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return { items: [] };
+      }
+    },
+  });
+
+  // Handle Autocomplete selection
+  const handleAutocompleteSelect = (key: string, value: string) => {
+    if (key === "startFunding") {
+      setFundingData((prev) => ({ ...prev, owner: value })); // Ensure 'owner' is updated
+    }
+  };
+
+  // ADD OWNERS - add_owners()
   // Form data for add owner form
   const [formData, setFormData] = useState({
     username: "",
@@ -61,31 +130,7 @@ export default function OwnersPage() {
     fundDate: "",
   });
 
-  // Message from backend - start_funding()
-  const [fundingMessage, setFundingMessage] = useState<string | null>(null);
-
-  // Fetch the owners data from the backend
-  useEffect(() => {
-    const fetchOwners = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/owners");
-
-        if (!response.ok) throw new Error("Failed to fetch owners");
-
-        const data = await response.json();
-
-        setOwners(data); // Set the owner data into state
-      } catch (error) {
-        console.error(error);
-        setTableFetchError("Failed to load the owners list.");
-      } finally {
-        setLoading(false); // Set loading to false when the request is done
-      }
-    };
-
-    fetchOwners();
-  }, []);
-
+  // ADD OWNERS
   // Handle add_owners() form input change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -145,6 +190,10 @@ export default function OwnersPage() {
     }
   };
 
+  // START FUNDING
+  // Message from backend - start_funding()
+  const [fundingMessage, setFundingMessage] = useState<string | null>(null);
+
   // Handle funding form input changes
   const handleFundingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFundingData({ ...fundingData, [e.target.name]: e.target.value });
@@ -182,6 +231,7 @@ export default function OwnersPage() {
 
       if (response.ok && result.message === "Successfully started funding.") {
         setFundingMessage("Funding started successfully!");
+        await fetchOwners();
       } else {
         setFundingMessage(result.message || "An error occurred.");
       }
@@ -198,7 +248,7 @@ export default function OwnersPage() {
       </h1>
       <p className="text-slate-500 mb-8 text-center">
         This view displays information in the system from the perspective of an
-        owner. <br></br>
+        owner.
       </p>
       <p className="text-slate-500 mb-8 text-center">
         For each owner, it includes the owner&apos;s information, along with the
@@ -324,7 +374,7 @@ export default function OwnersPage() {
         </Card>
       </div>
 
-      {/* Funding Form */}
+      {/* START FUNDING FORM */}
       <div className="my-8 w-full">
         <h2 className="text-2xl font-bold text-gray-700 mb-4 text-center">
           Start Funding
@@ -339,14 +389,39 @@ export default function OwnersPage() {
               className="flex items-center gap-4 w-full"
               onSubmit={handleFundingSubmit}
             >
-              <Input
-                className="flex-1"
-                label="Username"
-                name="owner"
-                type="text"
-                value={fundingData.owner}
-                onChange={handleFundingChange}
-              />
+              {/* <Autocomplete
+                className="w-auto max-w-xs"
+                defaultItems={username}
+                label="Owner Usernames"
+                placeholder="Search for a username"
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("startFunding", selected as string)
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete> */}
+              <Autocomplete
+                className="w-auto max-w-xs"
+                inputValue={ownerList.filterText} // Track input value for filtering
+                isLoading={ownerList.isLoading} // Show loading state while fetching data
+                items={ownerList.items} // Items filtered by the filterText
+                label="Owner Usernames"
+                placeholder="Search for a username"
+                onInputChange={ownerList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("startFunding", selected as string)
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Input
                 className="flex-1"
                 label="Amount"
