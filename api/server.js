@@ -57,6 +57,46 @@ app.get("/api/owner-usernames", async (req, res) => {
   }
 });
 
+// Fetching worker's usernames
+app.get("/api/worker-usernames", async (req, res) => {
+  const query = "SELECT username FROM business_supply.workers";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.username);
+      console.log("Owner usernames: ", usernames);
+      res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching driver's usernames
+app.get("/api/driver-usernames", async (req, res) => {
+  const query = "SELECT username FROM business_supply.display_driver_view";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.username);
+      console.log("Owner usernames: ", usernames);
+      res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Fetching businesses's names
 app.get("/api/businesses-names", async (req, res) => {
   const query = "SELECT long_name FROM business_supply.businesses";
@@ -589,18 +629,18 @@ app.post("/api/remove-driver-role", async (req, res) => {
 // ADD LOCATION add_location()
 app.post("/api/add-location", async (req, res) => {
   // Map received fields to expected names
-  const { ip_label, ip_x_coord, ip_y_coord, ip_space } = req.body;
+  const { label, x_coord, y_coord, space } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!ip_label || !ip_x_coord || !ip_y_coord ) {
-      console.log("Validation failed: Label and coordinates cannot be null.");
-      return res.status(400).json({ message: "Label and coordinates cannot be null." });
+  if (!label || !x_coord || !y_coord || !space ) {
+      console.log("Validation failed: No fields can be left null.");
+      return res.status(400).json({ message: "No fields can be left null." });
   }
 
   const query = `CALL business_supply.add_location(?, ?, ?, ?);`;
-  const values = [ip_label, ip_x_coord, ip_y_coord, ip_space];
+  const values = [label, x_coord, y_coord, space];
 
   try {
       db.query(query, values, (err, results) => {

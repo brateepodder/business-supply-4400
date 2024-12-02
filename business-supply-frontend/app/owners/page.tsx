@@ -101,7 +101,17 @@ export default function OwnersPage() {
     }
   };
 
-  // ADD OWNERS - add_owners()
+  // ADD OWNERS
+  // Handle add_owners() form input change
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Add Owner Form error
+  const [addOwnerFormError, setAddOwnerFormError] = useState<string | null>(
+    null,
+  );
+
   // Form data for add owner form
   const [formData, setFormData] = useState({
     username: "",
@@ -113,28 +123,6 @@ export default function OwnersPage() {
 
   // Message from backend - add_owner()
   const [message, setMessage] = useState<string | null>(null);
-
-  // Add Owner Form error
-  const [addOwnerFormError, setAddOwnerFormError] = useState<string | null>(
-    null,
-  );
-
-  // Errors from fetching owner view
-  const [tableFetchError, setTableFetchError] = useState<string | null>(null);
-
-  // Form data for start funding form
-  const [fundingData, setFundingData] = useState({
-    owner: "",
-    amount: "",
-    business: "",
-    fundDate: "",
-  });
-
-  // ADD OWNERS
-  // Handle add_owners() form input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   // Handle add_owners() form submission
   const handleAddOwnerSubmit = async (e: React.FormEvent) => {
@@ -177,10 +165,7 @@ export default function OwnersPage() {
           birthdate: "",
         });
 
-        const updatedOwners = await fetch("http://localhost:5000/api/owners");
-        const newOwners = await updatedOwners.json();
-
-        setOwners(newOwners);
+        fetchOwners();
       } else {
         setAddOwnerFormError(result.message || "An error occurred.");
       }
@@ -193,6 +178,17 @@ export default function OwnersPage() {
   // START FUNDING
   // Message from backend - start_funding()
   const [fundingMessage, setFundingMessage] = useState<string | null>(null);
+
+  // Errors from fetching owner view
+  const [tableFetchError, setTableFetchError] = useState<string | null>(null);
+
+  // Form data for start funding form
+  const [fundingData, setFundingData] = useState({
+    owner: "",
+    amount: "",
+    business: "",
+    fundDate: "",
+  });
 
   // Handle funding form input changes
   const handleFundingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -229,11 +225,9 @@ export default function OwnersPage() {
 
       const result = await response.json();
 
-      if (response.ok && result.message === "Successfully started funding.") {
-        setFundingMessage("Funding started successfully!");
+      if (response.ok) {
+        setFundingMessage(result.message || "An error occured.");
         await fetchOwners();
-      } else {
-        setFundingMessage(result.message || "An error occurred.");
       }
     } catch (error) {
       console.error("Error starting funding:", error);
@@ -389,21 +383,6 @@ export default function OwnersPage() {
               className="flex items-center gap-4 w-full"
               onSubmit={handleFundingSubmit}
             >
-              {/* <Autocomplete
-                className="w-auto max-w-xs"
-                defaultItems={username}
-                label="Owner Usernames"
-                placeholder="Search for a username"
-                onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("startFunding", selected as string)
-                }
-              >
-                {(item) => (
-                  <AutocompleteItem key={item.value}>
-                    {item.label}
-                  </AutocompleteItem>
-                )}
-              </Autocomplete> */}
               <Autocomplete
                 className="w-auto max-w-xs"
                 inputValue={ownerList.filterText} // Track input value for filtering

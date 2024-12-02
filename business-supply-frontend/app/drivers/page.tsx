@@ -17,6 +17,7 @@ import {
   CircularProgress,
 } from "@nextui-org/react";
 import axios from "axios";
+import { useAsyncList } from "@react-stately/data";
 
 // Adjust the interface to match the data from the API
 interface Driver {
@@ -33,24 +34,71 @@ export default function DriversPage() {
   >([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch usernames for the Autocomplete
-  const fetchUsernames = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/usernames");
-      const formattedUsernames = response.data.map((username: string) => ({
-        label: username,
-        value: username,
-      }));
+  // Fetch driver usernames for the Autocomplete
+  let driverList = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch(
+          "http://localhost:5000/api/driver-usernames",
+          { signal },
+        );
 
-      setUsernames(formattedUsernames);
-    } catch (err) {
-      console.error("Error fetching usernames:", err);
-    }
-  };
+        if (!response.ok) throw new Error("Failed to fetch owner usernames");
 
-  useEffect(() => {
-    fetchUsernames();
-  }, []);
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return { items: [] };
+      }
+    },
+  });
+
+  let usernameList = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch("http://localhost:5000/api/usernames", {
+          signal,
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch owner usernames");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return { items: [] };
+      }
+    },
+  });
 
   // Fetch the drivers data from the backend
   const fetchDrivers = async () => {
@@ -137,7 +185,6 @@ export default function DriversPage() {
       ) {
         setTakeoverVanMessage("Successfully tookover van.");
         await fetchDrivers(); // Refresh the drivers table
-        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setTakeoverVanMessage(result.message || "An error occurred.");
       }
@@ -199,7 +246,6 @@ export default function DriversPage() {
       ) {
         setRemoveDriverRoleMessage("Successfully removed driver.");
         await fetchDrivers(); // Refresh the drivers table
-        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setRemoveDriverRoleMessage(result.message || "An error occurred.");
       }
@@ -272,7 +318,6 @@ export default function DriversPage() {
       ) {
         setAddDriverRoleMessage("Successfully added driver role.");
         await fetchDrivers(); // Refresh the drivers table
-        await fetchUsernames(); // Refresh the autocomplete options
       } else {
         setAddDriverRoleMessage(result.message || "An error occurred.");
       }
@@ -339,13 +384,15 @@ export default function DriversPage() {
               onSubmit={handleAddDriverRoleSubmit}
             >
               <Autocomplete
-                required
                 className="w-auto max-w-xs"
-                defaultItems={usernames}
-                label="Select Username"
+                inputValue={usernameList.filterText} // Track input value for filtering
+                isLoading={usernameList.isLoading} // Show loading state while fetching data
+                items={usernameList.items} // Items filtered by the filterText
+                label="Owner Usernames"
                 placeholder="Search for a username"
-                onSelectionChange={(selected: string) =>
-                  handleAutocompleteSelect("addDriverRole", selected)
+                onInputChange={usernameList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("addDriverRole", selected as string)
                 }
               >
                 {(item) => (
@@ -432,11 +479,14 @@ export default function DriversPage() {
             >
               <Autocomplete
                 className="flex-1"
-                defaultItems={usernames}
-                label="Select Username"
+                inputValue={driverList.filterText} // Track input value for filtering
+                isLoading={driverList.isLoading} // Show loading state while fetching data
+                items={driverList.items} // Items filtered by the filterText
+                label="Owner Usernames"
                 placeholder="Search for a username"
+                onInputChange={driverList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("takeoverVan", selected)
+                  handleAutocompleteSelect("takeoverVan", selected as string)
                 }
               >
                 {(item) => (
@@ -499,11 +549,17 @@ export default function DriversPage() {
             >
               <Autocomplete
                 className="flex-1"
-                defaultItems={usernames}
-                label="Select Username"
+                inputValue={driverList.filterText} // Track input value for filtering
+                isLoading={driverList.isLoading} // Show loading state while fetching data
+                items={driverList.items} // Items filtered by the filterText
+                label="Owner Usernames"
                 placeholder="Search for a username"
+                onInputChange={driverList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("removeDriverRole", selected)
+                  handleAutocompleteSelect(
+                    "removeDriverRole",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (

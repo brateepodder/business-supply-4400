@@ -12,8 +12,11 @@ import {
   Input,
   Card,
   Divider,
+  Autocomplete,
+  AutocompleteItem,
 } from "@nextui-org/react";
 import { CircularProgress } from "@nextui-org/react";
+import { useAsyncList } from "@react-stately/data";
 
 interface Employee {
   username: string;
@@ -30,24 +33,65 @@ export default function LocationsPage() {
   const [owners, setOwners] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch the owners data from the backend
-  useEffect(() => {
-    const fetchEmployees = async () => {
+  let workerList = useAsyncList({
+    async load({ signal, filterText }) {
       try {
-        const response = await fetch("http://localhost:5000/api/employees");
+        // Fetch all usernames without using filterText
+        const response = await fetch(
+          "http://localhost:5000/api/worker-usernames",
+          { signal },
+        );
 
-        if (!response.ok) throw new Error("Failed to fetch locations");
+        if (!response.ok) throw new Error("Failed to fetch owner usernames");
 
         const data = await response.json();
 
-        setOwners(data);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
 
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return { items: [] };
+      }
+    },
+  });
+
+  const handleAutocompleteSelect = (key: string, value: string) => {
+    if (key === "hireEmployee") {
+      setHireEmployeeData((prev) => ({ ...prev, username: value }));
+    } else if (key == "fireEmployee") {
+      setFireEmployeeData((prev) => ({ ...prev, username: value }));
+    }
+  };
+
+  // Fetch the owners data from the backend
+  const fetchEmployees = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/employees");
+
+      if (!response.ok) throw new Error("Failed to fetch locations");
+
+      const data = await response.json();
+
+      setOwners(data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchEmployees();
   }, []);
 
@@ -112,10 +156,9 @@ export default function LocationsPage() {
 
       const result = await response.json();
 
-      if (response.ok && result.message === "Successfully started funding.") {
-        setAddEmployeeMessage("Funding started successfully!");
-      } else {
-        setAddEmployeeMessage(result.message || "An error occurred.");
+      if (response.ok) {
+        setAddEmployeeMessage(result.message);
+        fetchEmployees();
       }
     } catch (error) {
       console.error("Error starting funding:", error);
@@ -164,10 +207,9 @@ export default function LocationsPage() {
 
       const result = await response.json();
 
-      if (response.ok && result.message === "Successfully hired employee.") {
-        setHireEmployeeMessage("Successfully hired employee.");
-      } else {
+      if (response.ok) {
         setHireEmployeeMessage(result.message || "An error occurred.");
+        fetchEmployees();
       }
     } catch (error) {
       console.error("Error hiring employee:", error);
@@ -407,14 +449,24 @@ export default function LocationsPage() {
               className="flex items-center gap-4"
               onSubmit={handleHireEmployeeSubmit}
             >
-              <Input
-                className="flex-1"
-                label="Username"
-                name="username"
-                type="text"
-                value={hireEmployeeData.username}
-                onChange={handleHireEmployeeChange}
-              />
+              <Autocomplete
+                className="w-auto max-w-xs"
+                inputValue={workerList.filterText} // Track input value for filtering
+                isLoading={workerList.isLoading} // Show loading state while fetching data
+                items={workerList.items} // Items filtered by the filterText
+                label="Worker Usernames"
+                placeholder="Search for a username"
+                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("hireEmployee", selected as string)
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Input
                 className="flex-1"
                 label="Delivery Service ID"
@@ -460,14 +512,24 @@ export default function LocationsPage() {
               className="flex items-center gap-4"
               onSubmit={handleFireEmployeeSubmit}
             >
-              <Input
-                className="flex-1"
-                label="Username"
-                name="username"
-                type="text"
-                value={fireEmployeeData.username}
-                onChange={handleFireEmployeeChange}
-              />
+              <Autocomplete
+                className="w-auto max-w-xs"
+                inputValue={workerList.filterText} // Track input value for filtering
+                isLoading={workerList.isLoading} // Show loading state while fetching data
+                items={workerList.items} // Items filtered by the filterText
+                label="Worker Usernames"
+                placeholder="Search for a username"
+                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("fireEmployee", selected as string)
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Input
                 className="flex-1"
                 label="Delivery Service ID"
@@ -484,7 +546,7 @@ export default function LocationsPage() {
             {fireEmployeeMessage && (
               <p
                 className={`text-center mt-8 ${
-                    fireEmployeeMessage.includes("successfully")
+                  fireEmployeeMessage.includes("successfully")
                     ? "text-green-700"
                     : "text-red-600"
                 }`}
