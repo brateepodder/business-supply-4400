@@ -89,6 +89,42 @@ export default function OwnersPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
+        return { items: [] };
+      }
+    },
+  });
+
+  // Use useAsyncList to load all usernames and filter locally
+  let businessNamesList = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch(
+          "http://localhost:5000/api/businesses-names",
+          { signal },
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch owner usernames");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -96,24 +132,22 @@ export default function OwnersPage() {
 
   // Handle Autocomplete selection
   const handleAutocompleteSelect = (key: string, value: string) => {
-    if (key === "startFunding") {
-      setFundingData((prev) => ({ ...prev, owner: value })); // Ensure 'owner' is updated
+    if (key === "startFundingUsernames") {
+      setFundingData((prev) => ({ ...prev, owner: value }));
+    }
+    if (key === "startFundingBusinessName") {
+      setFundingData((prev) => ({ ...prev, business: value }));
     }
   };
 
   // ADD OWNERS
   // Handle add_owners() form input change
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleAddOwnerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setAddOwnerData({ ...addOwnerData, [e.target.name]: e.target.value });
   };
 
-  // Add Owner Form error
-  const [addOwnerFormError, setAddOwnerFormError] = useState<string | null>(
-    null,
-  );
-
   // Form data for add owner form
-  const [formData, setFormData] = useState({
+  const [addOwnerData, setAddOwnerData] = useState({
     username: "",
     first_name: "",
     last_name: "",
@@ -122,56 +156,44 @@ export default function OwnersPage() {
   });
 
   // Message from backend - add_owner()
-  const [message, setMessage] = useState<string | null>(null);
+  const [addOwnerMessage, setAddOwnerMessage] = useState<string | null>(null);
 
   // Handle add_owners() form submission
   const handleAddOwnerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Clear previous messages
-    setMessage(null);
-    setAddOwnerFormError(null);
+    setAddOwnerMessage(null);
 
     // Validate form fields
-    if (!formData.username || !formData.birthdate) {
-      setAddOwnerFormError("Please add a username and a birthdate.");
+    if (!addOwnerData.username || !addOwnerData.birthdate) {
+      setAddOwnerMessage("Please add a username and a birthdate.");
 
       return;
     }
 
     try {
-      console.log("Submitting form with data:", formData);
+      console.log("Submitting form with data:", addOwnerData);
 
       const response = await fetch("http://localhost:5000/api/add-owner", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(addOwnerData),
       });
 
       const result = await response.json();
 
       console.log("Response from server:", result);
 
-      if (result.message === "Username already exists, select unique one.") {
-        setAddOwnerFormError(result.message);
-      } else if (response.ok) {
-        // On success, update the UI and reset the form
-        setMessage("Successfully added owner!");
-        setFormData({
-          username: "",
-          first_name: "",
-          last_name: "",
-          address: "",
-          birthdate: "",
-        });
-
-        fetchOwners();
+      if (response.ok) {
+        setAddOwnerMessage(result.message || "An error occured.");
+        await fetchOwners();
       } else {
-        setAddOwnerFormError(result.message || "An error occurred.");
+        setAddOwnerMessage(result.message || "An error occured.");
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      setAddOwnerFormError("Failed to add owner.");
+      setAddOwnerMessage("Failed to add owner.");
     }
   };
 
@@ -313,56 +335,56 @@ export default function OwnersPage() {
                 label="Username"
                 name="username"
                 type="text"
-                value={formData.username}
-                onChange={handleChange}
+                value={addOwnerData.username}
+                onChange={handleAddOwnerChange}
               />
               <Input
                 className="flex-1"
                 label="First Name"
                 name="first_name"
                 type="text"
-                value={formData.first_name}
-                onChange={handleChange}
+                value={addOwnerData.first_name}
+                onChange={handleAddOwnerChange}
               />
               <Input
                 className="flex-1"
                 label="Last Name"
                 name="last_name"
                 type="text"
-                value={formData.last_name}
-                onChange={handleChange}
+                value={addOwnerData.last_name}
+                onChange={handleAddOwnerChange}
               />
               <Input
                 className="flex-1"
                 label="Address"
                 name="address"
                 type="text"
-                value={formData.address}
-                onChange={handleChange}
+                value={addOwnerData.address}
+                onChange={handleAddOwnerChange}
               />
               <Input
                 className="flex-1"
                 label="Birthdate"
                 name="birthdate"
                 type="date"
-                value={formData.birthdate}
-                onChange={handleChange}
+                value={addOwnerData.birthdate}
+                onChange={handleAddOwnerChange}
               />
               <Button color="primary" type="submit">
                 Add Owner
               </Button>
             </form>
 
-            {/* Display form-specific errors */}
-            {addOwnerFormError && (
-              <p className="text-center text-red-600 mt-8">
-                {addOwnerFormError}
+            {addOwnerMessage && (
+              <p
+                className={`text-center mt-8 ${
+                  addOwnerMessage.toLowerCase().includes("successfully")
+                    ? "text-green-700"
+                    : "text-red-600"
+                }`}
+              >
+                {addOwnerMessage}
               </p>
-            )}
-
-            {/* Display success message */}
-            {message && (
-              <p className="text-center text-green-700 mt-8">{message}</p>
             )}
           </div>
         </Card>
@@ -409,14 +431,24 @@ export default function OwnersPage() {
                 value={fundingData.amount}
                 onChange={handleFundingChange}
               />
-              <Input
-                className="flex-1"
-                label="Business Name"
-                name="business"
-                type="text"
-                value={fundingData.business}
-                onChange={handleFundingChange}
-              />
+              <Autocomplete
+                className="w-auto max-w-xs"
+                inputValue={businessNamesList.filterText} // Track input value for filtering
+                isLoading={businessNamesList.isLoading} // Show loading state while fetching data
+                items={businessNamesList.items} // Items filtered by the filterText
+                label="Business Names"
+                placeholder="Search for a business name"
+                onInputChange={businessNamesList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect("startFunding", selected as string)
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Input
                 className="flex-1"
                 label="Funding Date"

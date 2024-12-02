@@ -33,6 +33,7 @@ export default function LocationsPage() {
   const [owners, setOwners] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
+  // Fetch worker's usernames for Autocomplete
   let workerList = useAsyncList({
     async load({ signal, filterText }) {
       try {
@@ -61,16 +62,59 @@ export default function LocationsPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
+        return { items: [] };
+      }
+    },
+  });
+
+  // Fetch delivery service IDs for the Autocomplete
+  let deliveryServiceIDs = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch("http://localhost:5000/api/service-ids", {
+          signal,
+        });
+
+        if (!response.ok)
+          throw new Error("Failed to fetch delivery service IDs.");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
   });
 
   const handleAutocompleteSelect = (key: string, value: string) => {
-    if (key === "hireEmployee") {
+    if (key === "hireEmployeeUsername") {
       setHireEmployeeData((prev) => ({ ...prev, username: value }));
-    } else if (key == "fireEmployee") {
+    }
+    if (key === "fireEmployeeUsername") {
       setFireEmployeeData((prev) => ({ ...prev, username: value }));
+    }
+    if (key === "hireEmployeeServiceID") {
+      setHireEmployeeData((prev) => ({ ...prev, id: value }));
+    }
+    if (key === "fireEmployeeServiceID") {
+      setFireEmployeeData((prev) => ({ ...prev, id: value }));
     }
   };
 
@@ -158,7 +202,9 @@ export default function LocationsPage() {
 
       if (response.ok) {
         setAddEmployeeMessage(result.message);
-        fetchEmployees();
+        await fetchEmployees();
+      } else {
+        setAddEmployeeMessage(result.message || "An error occurred.");
       }
     } catch (error) {
       console.error("Error starting funding:", error);
@@ -208,8 +254,10 @@ export default function LocationsPage() {
       const result = await response.json();
 
       if (response.ok) {
+        setHireEmployeeMessage(result.message);
+        await fetchEmployees();
+      } else {
         setHireEmployeeMessage(result.message || "An error occurred.");
-        fetchEmployees();
       }
     } catch (error) {
       console.error("Error hiring employee:", error);
@@ -258,8 +306,9 @@ export default function LocationsPage() {
 
       const result = await response.json();
 
-      if (response.ok && result.message === "Successfully fired employee.") {
-        setFireEmployeeMessage("Successfully fired employee.");
+      if (response.ok) {
+        setFireEmployeeMessage(result.message);
+        await fetchEmployees();
       } else {
         setFireEmployeeMessage(result.message || "An error occurred.");
       }
@@ -450,7 +499,7 @@ export default function LocationsPage() {
               onSubmit={handleHireEmployeeSubmit}
             >
               <Autocomplete
-                className="w-auto max-w-xs"
+                className="flex-1"
                 inputValue={workerList.filterText} // Track input value for filtering
                 isLoading={workerList.isLoading} // Show loading state while fetching data
                 items={workerList.items} // Items filtered by the filterText
@@ -458,7 +507,10 @@ export default function LocationsPage() {
                 placeholder="Search for a username"
                 onInputChange={workerList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("hireEmployee", selected as string)
+                  handleAutocompleteSelect(
+                    "hireEmployeeUsername",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (
@@ -467,14 +519,27 @@ export default function LocationsPage() {
                   </AutocompleteItem>
                 )}
               </Autocomplete>
-              <Input
+              <Autocomplete
                 className="flex-1"
-                label="Delivery Service ID"
-                name="id"
-                type="text"
-                value={hireEmployeeData.id}
-                onChange={handleHireEmployeeChange}
-              />
+                inputValue={deliveryServiceIDs.filterText} // Track input value for filtering
+                isLoading={deliveryServiceIDs.isLoading} // Show loading state while fetching data
+                items={deliveryServiceIDs.items} // Items filtered by the filterText
+                label="Delivery Service IDs"
+                placeholder="Search for a delivery service ID"
+                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect(
+                    "hireEmployeeServiceID",
+                    selected as string,
+                  )
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Button color="primary" type="submit">
                 Hire Employee
               </Button>
@@ -513,7 +578,7 @@ export default function LocationsPage() {
               onSubmit={handleFireEmployeeSubmit}
             >
               <Autocomplete
-                className="w-auto max-w-xs"
+                className="flex-1"
                 inputValue={workerList.filterText} // Track input value for filtering
                 isLoading={workerList.isLoading} // Show loading state while fetching data
                 items={workerList.items} // Items filtered by the filterText
@@ -521,7 +586,10 @@ export default function LocationsPage() {
                 placeholder="Search for a username"
                 onInputChange={workerList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("fireEmployee", selected as string)
+                  handleAutocompleteSelect(
+                    "fireEmployeeUsername",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (
@@ -530,14 +598,27 @@ export default function LocationsPage() {
                   </AutocompleteItem>
                 )}
               </Autocomplete>
-              <Input
+              <Autocomplete
                 className="flex-1"
-                label="Delivery Service ID"
-                name="id"
-                type="text"
-                value={fireEmployeeData.id}
-                onChange={handleFireEmployeeChange}
-              />
+                inputValue={deliveryServiceIDs.filterText} // Track input value for filtering
+                isLoading={deliveryServiceIDs.isLoading} // Show loading state while fetching data
+                items={deliveryServiceIDs.items} // Items filtered by the filterText
+                label="Delivery Service IDs"
+                placeholder="Search for a delivery service ID"
+                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect(
+                    "fireEmployeeServiceID",
+                    selected as string,
+                  )
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Button color="primary" type="submit">
                 Fire Employee
               </Button>

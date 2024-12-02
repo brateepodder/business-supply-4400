@@ -44,7 +44,7 @@ export default function DriversPage() {
           { signal },
         );
 
-        if (!response.ok) throw new Error("Failed to fetch owner usernames");
+        if (!response.ok) throw new Error("Failed to fetch driver usernames.");
 
         const data = await response.json();
 
@@ -68,6 +68,7 @@ export default function DriversPage() {
     },
   });
 
+  // Fetch usernames for Autocomplete
   let usernameList = useAsyncList({
     async load({ signal, filterText }) {
       try {
@@ -76,7 +77,41 @@ export default function DriversPage() {
           signal,
         });
 
-        if (!response.ok) throw new Error("Failed to fetch owner usernames");
+        if (!response.ok) throw new Error("Failed to fetch usernames.");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching usernames:", error);
+        return { items: [] };
+      }
+    },
+  });
+
+  // Fetch delivery service IDs for the Autocomplete
+  let deliveryServiceIDs = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch("http://localhost:5000/api/service-ids", {
+          signal,
+        });
+
+        if (!response.ok)
+          throw new Error("Failed to fetch delivery service IDs.");
 
         const data = await response.json();
 
@@ -125,8 +160,10 @@ export default function DriversPage() {
   const handleAutocompleteSelect = (key: string, value: string) => {
     if (key === "addDriverRole") {
       setAddDriverRoleData((prev) => ({ ...prev, username: value }));
-    } else if (key === "takeoverVan") {
+    } else if (key === "takeoverVanUsername") {
       setTakeoverVanData((prev) => ({ ...prev, username: value }));
+    } else if (key === "takeoverVanServiceID") {
+      setTakeoverVanData((prev) => ({ ...prev, id: value }));
     } else if (key === "removeDriverRole") {
       setRemoveDriverRoleData((prev) => ({ ...prev, username: value }));
     }
@@ -178,13 +215,9 @@ export default function DriversPage() {
 
       const result = await response.json();
 
-      if (
-        response.ok &&
-        (result.message.includes("successfully") ||
-          result.message.includes("Successfully"))
-      ) {
-        setTakeoverVanMessage("Successfully tookover van.");
-        await fetchDrivers(); // Refresh the drivers table
+      if (response.ok) {
+        setTakeoverVanMessage(result.message);
+        await fetchDrivers();
       } else {
         setTakeoverVanMessage(result.message || "An error occurred.");
       }
@@ -239,15 +272,11 @@ export default function DriversPage() {
 
       const result = await response.json();
 
-      if (
-        response.ok &&
-        (result.message.includes("successfully") ||
-          result.message.includes("Successfully"))
-      ) {
-        setRemoveDriverRoleMessage("Successfully removed driver.");
+      if (response.ok) {
+        setRemoveDriverRoleData(result.message);
         await fetchDrivers(); // Refresh the drivers table
       } else {
-        setRemoveDriverRoleMessage(result.message || "An error occurred.");
+        setRemoveDriverRoleData(result.message || "An error occurred.");
       }
     } catch (error) {
       console.error("Error removing driver:", error);
@@ -311,12 +340,8 @@ export default function DriversPage() {
 
       const result = await response.json();
 
-      if (
-        response.ok &&
-        (result.message.includes("successfully") ||
-          result.message.includes("Successfully"))
-      ) {
-        setAddDriverRoleMessage("Successfully added driver role.");
+      if (response.ok) {
+        setAddDriverRoleMessage(result.message);
         await fetchDrivers(); // Refresh the drivers table
       } else {
         setAddDriverRoleMessage(result.message || "An error occurred.");
@@ -388,7 +413,7 @@ export default function DriversPage() {
                 inputValue={usernameList.filterText} // Track input value for filtering
                 isLoading={usernameList.isLoading} // Show loading state while fetching data
                 items={usernameList.items} // Items filtered by the filterText
-                label="Owner Usernames"
+                label="All Usernames"
                 placeholder="Search for a username"
                 onInputChange={usernameList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
@@ -482,11 +507,14 @@ export default function DriversPage() {
                 inputValue={driverList.filterText} // Track input value for filtering
                 isLoading={driverList.isLoading} // Show loading state while fetching data
                 items={driverList.items} // Items filtered by the filterText
-                label="Owner Usernames"
+                label="Driver Usernames"
                 placeholder="Search for a username"
                 onInputChange={driverList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("takeoverVan", selected as string)
+                  handleAutocompleteSelect(
+                    "takeoverVanUsername",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (
@@ -495,14 +523,27 @@ export default function DriversPage() {
                   </AutocompleteItem>
                 )}
               </Autocomplete>
-              <Input
+              <Autocomplete
                 className="flex-1"
+                inputValue={deliveryServiceIDs.filterText} // Track input value for filtering
+                isLoading={deliveryServiceIDs.isLoading} // Show loading state while fetching data
+                items={deliveryServiceIDs.items} // Items filtered by the filterText
                 label="Delivery Service ID"
-                name="id"
-                type="text"
-                value={takeoverVanData.id}
-                onChange={handleTakeoverVanChange}
-              />
+                placeholder="Search Delivery Service ID"
+                onInputChange={deliveryServiceIDs.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect(
+                    "takeoverVanServiceID",
+                    selected as string,
+                  )
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Input
                 className="flex-1"
                 label="Van Tag"
@@ -552,8 +593,8 @@ export default function DriversPage() {
                 inputValue={driverList.filterText} // Track input value for filtering
                 isLoading={driverList.isLoading} // Show loading state while fetching data
                 items={driverList.items} // Items filtered by the filterText
-                label="Owner Usernames"
-                placeholder="Search for a username"
+                label="Driver Usernames"
+                placeholder="Search for a driver username"
                 onInputChange={driverList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
                   handleAutocompleteSelect(
