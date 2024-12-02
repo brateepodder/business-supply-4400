@@ -586,7 +586,551 @@ app.post("/api/remove-driver-role", async (req, res) => {
   }
 });
 
-  
+// ADD LOCATION add_location()
+app.post("/api/add-location", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_label, ip_x_coord, ip_y_coord, ip_space } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if (!ip_label || !ip_x_coord || !ip_y_coord ) {
+      console.log("Validation failed: Label and coordinates cannot be null.");
+      return res.status(400).json({ message: "Label and coordinates cannot be null." });
+  }
+
+  const query = `CALL business_supply.add_location(?, ?, ?, ?);`;
+  const values = [ip_label, ip_x_coord, ip_y_coord, ip_space];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Added location successfully.");
+          return res.json({ message: "Added location successfully." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ADD SERVICE add_service()
+app.post("/api/add-service", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_long_name, ip_home_base, ip_manager } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if (!ip_id || !ip_long_name || !ip_home_base ) {
+      console.log("Validation failed: Id, name and home base cannot be null.");
+      return res.status(400).json({ message: "Id, name and home base cannot be null." });
+  }
+
+  const query = `CALL business_supply.add_service(?, ?, ?, ?);`;
+  const values = [ip_id, ip_long_name, ip_home_base, ip_manager];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Added service successfully.");
+          return res.json({ message: "Added service successfully." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// MANAGE SERVICE manage_service()
+app.post("/api/manage-service", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_username, ip_id } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if (!ip_id || !ip_username ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.manage_service(?, ?);`;
+  const values = [ip_username, ip_id];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully added manager.");
+          return res.json({ message: "Successfully added manager." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ADD PRODUCT add_product()
+app.post("/api/add-product", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_barcode, ip_name, ip_weight } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if (!ip_barcode || !ip_name || !ip_weight) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.add_product(?, ?, ?);`;
+  const values = [ip_barcode, ip_name, ip_weight];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully added product.");
+          return res.json({ message: "Successfully added product." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// REMOVE PRODUCT remove_product()
+app.post("/api/remove-product", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_barcode } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if (!ip_barcode ) {
+      console.log("Validation failed: No field can be null.");
+      return res.status(400).json({ message: "No field can be null." });
+  }
+
+  const query = `CALL business_supply.remove_product(?);`;
+  const values = [ip_barcode];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully removed product.");
+          return res.json({ message: "Successfully removed product." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ADD VAN add_van()
+app.post("/api/add-van", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_tag, ip_fuel, ip_capacity, ip_sales, ip_driven_by } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_id || !ip_tag || !ip_fuel || !ip_capacity || !ip_sales ) {
+      console.log("Validation failed: Only driven by can be a null field.");
+      return res.status(400).json({ message: "Only driven by can be a null field." });
+  }
+
+  const query = `CALL business_supply.add_van(?, ?, ?, ?, ?, ?);`;
+  const values = [ip_id, ip_tag, ip_fuel, ip_capacity, ip_sales, ip_driven_by];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully added van.");
+          return res.json({ message: "Successfully added van." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// LOAD VAN load_van()
+app.post("/api/load-van", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_id || !ip_tag || !ip_barcode || !ip_more_packages || !ip_price ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.load_van(?, ?, ?, ?, ?);`;
+  const values = [ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully loaded van.");
+          return res.json({ message: "Successfully loaded van." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// REFUEL VAN refuel_van()
+app.post("/api/refuel-van", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_tag, ip_more_fuel } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_id || !ip_tag || !ip_more_fuel ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.refuel_van(?, ?, ?);`;
+  const values = [ip_id, ip_tag, ip_more_fuel];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully refueled van.");
+          return res.json({ message: "Successfully refueled van." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// DRIVE VAN drive_van()
+app.post("/api/drive-van", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_tag, ip_destination } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_id || !ip_tag || !ip_destination ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.drive_van(?, ?, ?);`;
+  const values = [ip_id, ip_tag, ip_destination];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully driven van.");
+          return res.json({ message: "Successfully driven van." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// REMOVE VAN remove_van()
+app.post("/api/remove-van", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_id, ip_tag } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_id || !ip_tag ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.remove_van(?, ?);`;
+  const values = [ip_id, ip_tag];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully removed van.");
+          return res.json({ message: "Successfully removed van." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ADD BUSINESS add_business()
+app.post("/api/add-business", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_long_name, ip_rating, ip_spent, ip_location } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_long_name || !ip_rating || !ip_spent || !ip_location ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.add_business(?, ?, ?, ?);`;
+  const values = [ip_long_name, ip_rating, ip_spent, ip_location];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully added business.");
+          return res.json({ message: "Successfully added business." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// PURCHASE PRODUCT purchase_product()
+app.post("/api/purchase-product", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_long_name, ip_id, ip_tag, ip_barcode, ip_quantity } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_long_name || !ip_id || !ip_tag || !ip_barcode || !ip_quantity ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.purchase_product(?, ?, ?, ?, ?);`;
+  const values = [ip_long_name, ip_id, ip_tag, ip_barcode, ip_quantity];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully purchased product.");
+          return res.json({ message: "Successfully purchased product." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+// ADD WORKER ROLE add_worker_role()
+app.post("/api/add-worker-role", async (req, res) => {
+  // Map received fields to expected names
+  const { ip_usernmae } = req.body;
+
+  console.log("Received data:", req.body);
+
+  // Validate form fields
+  if ( !ip_username ) {
+      console.log("Validation failed: No fields can be null.");
+      return res.status(400).json({ message: "No fields can be null." });
+  }
+
+  const query = `CALL business_supply.add_worker_role(?);`;
+  const values = [ip_username];
+
+  try {
+      db.query(query, values, (err, results) => {
+          if (err) {
+              console.error("MySQL Error:", err);
+              return res.status(500).json({ message: "Database error." });
+          }
+
+          console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
+
+          // Extract the message from the first result set
+          const procedureMessage = results?.[0]?.[0]?.message;
+
+          if (procedureMessage) {
+              console.log("Procedure message:", procedureMessage);
+              return res.json({ message: procedureMessage });
+          }
+
+          console.log("Successfully added worker role.");
+          return res.json({ message: "Successfully added worker role." });
+      });
+  } catch (error) {
+      console.error("Server Error:", error);
+      res.status(500).json({ message: "Internal server error." });
+  }
+});
 
 
 

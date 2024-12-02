@@ -61,7 +61,7 @@ export default function Home() {
           </TableRow>
           <TableRow>
             <TableCell>Services</TableCell>
-            <TableCell>add_service(), manager_service()</TableCell>
+            <TableCell>add_service(), manage_service()</TableCell>
             <TableCell>display_services_view()</TableCell>
             <TableCell>This page provides functionality for adding services and managing them.</TableCell>
           </TableRow>
