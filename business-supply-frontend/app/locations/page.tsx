@@ -19,7 +19,6 @@ import { Divider } from "@nextui-org/react";
 import axios from "axios";
 import { useAsyncList } from "@react-stately/data";
 
-// Adjust the interface to match the data from the API
 interface Location {
   label: string;
   long_name: string;

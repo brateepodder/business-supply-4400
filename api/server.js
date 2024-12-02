@@ -99,7 +99,7 @@ app.get("/api/driver-usernames", async (req, res) => {
 
 // Fetching businesses's names
 app.get("/api/businesses-names", async (req, res) => {
-  const query = "SELECT long_name FROM business_supply.businesses";
+  const query = "SELECT long_name FROM business_supply.businesses;";
   try {
     db.query(query, (err, results) => {
       if (err) {
@@ -107,9 +107,29 @@ app.get("/api/businesses-names", async (req, res) => {
         return res.status(500).json({ message: "Database error" });
       }
 
-      const business_names = results.map((row) => row.username);
+      const business_names = results.map((row) => row.long_name);
       console.log("Business Names Fetching API result: ", business_names);
       res.json(business_names);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching delivery service's IDs
+app.get("/api/service-ids", async (req, res) => {
+  const query = "SELECT id FROM business_supply.delivery_services;";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const serviceIDs = results.map((row) => row.id);
+      console.log("Delivery Service IDs Fetching API result: ", serviceIDs);
+      res.json(serviceIDs);
     });
   } catch (error) {
     console.error("Server error:", error);
@@ -713,18 +733,18 @@ app.post("/api/add-service", async (req, res) => {
 // MANAGE SERVICE manage_service()
 app.post("/api/manage-service", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username, ip_id } = req.body;
+  const { username, id } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!ip_id || !ip_username ) {
+  if (!username || !id ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.manage_service(?, ?);`;
-  const values = [ip_username, ip_id];
+  const values = [username, id];
 
   try {
       db.query(query, values, (err, results) => {
