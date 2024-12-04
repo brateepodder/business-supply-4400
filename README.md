@@ -44,8 +44,12 @@ Open a terminal and run the following command:
 git clone https://github.com/your-username/business-supply.git
 cd business-supply```
 
-OR 
+### 2. Add dotenv file 
 
-Use the 
+DB_HOST=localhost
+DB_USER=your_username
+DB_PASSWORD=your_password
+DB_NAME=business_supply
+DB_PORT=3306
 
 
