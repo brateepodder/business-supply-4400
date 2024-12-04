@@ -17,6 +17,8 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 
+import { useConfig } from "../ConfigContext";
+
 // Adjust the interface to match the data from the API
 interface Van {
   id: string;
@@ -29,13 +31,14 @@ interface Van {
 }
 
 export default function VansPage() {
+  const { port } = useConfig();
   const [vans, setVans] = useState<Van[]>([]); // State to store the vans data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
 
   // Fetch the vans data from the backend
   const fetchVans = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/vans");
+      const response = await fetch("http://localhost:" + port + "/api/vans");
 
       if (!response.ok) throw new Error("Failed to fetch vans");
 
@@ -59,7 +62,7 @@ export default function VansPage() {
       try {
         // Fetch all product barcode without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/driver-usernames",
+          "http://localhost:" + port + "/api/driver-usernames",
           { signal },
         );
 
@@ -93,9 +96,12 @@ export default function VansPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all product barcode without using filterText
-        const response = await fetch("http://localhost:5000/api/location-names", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/location-names",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok) throw new Error("Failed to fetch locations.");
 
@@ -128,7 +134,7 @@ export default function VansPage() {
       try {
         // Fetch all product barcode without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/product-barcodes",
+          "http://localhost:" + port + "/api/product-barcodes",
           { signal },
         );
 
@@ -162,9 +168,12 @@ export default function VansPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all product barcode without using filterText
-        const response = await fetch("http://localhost:5000/api/service-ids", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/service-ids",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok)
           throw new Error("Failed to fetch delivery service IDs.");
@@ -266,11 +275,14 @@ export default function VansPage() {
     try {
       console.log("Submitting form with data:", addVanData);
 
-      const response = await fetch("http://localhost:5000/api/add-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addVanData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addVanData),
+        },
+      );
 
       const result = await response.json();
 
@@ -332,11 +344,14 @@ export default function VansPage() {
     try {
       console.log("Submitting form with data:", loadVanData);
 
-      const response = await fetch("http://localhost:5000/api/load-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loadVanData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/load-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(loadVanData),
+        },
+      );
 
       const result = await response.json();
 
@@ -390,11 +405,14 @@ export default function VansPage() {
     try {
       console.log("Submitting form with data:", refuelVanData);
 
-      const response = await fetch("http://localhost:5000/api/refuel-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(refuelVanData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/refuel-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(refuelVanData),
+        },
+      );
 
       const result = await response.json();
 
@@ -448,11 +466,14 @@ export default function VansPage() {
     try {
       console.log("Submitting form with data:", driveVanData);
 
-      const response = await fetch("http://localhost:5000/api/drive-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(driveVanData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/drive-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(driveVanData),
+        },
+      );
 
       const result = await response.json();
 
@@ -505,11 +526,14 @@ export default function VansPage() {
     try {
       console.log("Submitting form with data:", removeVanData);
 
-      const response = await fetch("http://localhost:5000/api/remove-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(removeVanData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/remove-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(removeVanData),
+        },
+      );
 
       const result = await response.json();
 

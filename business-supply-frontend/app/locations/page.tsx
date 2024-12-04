@@ -8,16 +8,14 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Autocomplete,
-  AutocompleteItem,
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 import { CircularProgress } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@nextui-org/react";
-import axios from "axios";
-import { useAsyncList } from "@react-stately/data";
+
+import { useConfig } from "../ConfigContext";
 
 interface Location {
   label: string;
@@ -31,13 +29,16 @@ interface Location {
 }
 
 export default function LocationsPage() {
+  const { port } = useConfig();
   const [location, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch the locations data from the backend
   const fetchLocations = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/locations");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/locations",
+      );
 
       if (!response.ok) throw new Error("Failed to fetch locations");
 
@@ -89,17 +90,21 @@ export default function LocationsPage() {
       !addLocationData.space
     ) {
       setAddLocationMessage("No fields can be left null.");
+
       return;
     }
 
     try {
       console.log("Submitting form with data:", addLocationData);
 
-      const response = await fetch("http://localhost:5000/api/add-location", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addLocationData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-location",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addLocationData),
+        },
+      );
 
       const result = await response.json();
 

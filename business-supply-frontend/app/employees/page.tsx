@@ -18,6 +18,8 @@ import {
 import { CircularProgress } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 
+import { useConfig } from "../ConfigContext";
+
 interface Employee {
   username: string;
   taxID: string;
@@ -30,6 +32,7 @@ interface Employee {
 }
 
 export default function LocationsPage() {
+  const { port } = useConfig();
   const [owners, setOwners] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -39,7 +42,7 @@ export default function LocationsPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/worker-usernames",
+          "http://localhost:" + port + "/api/worker-usernames",
           { signal },
         );
 
@@ -73,9 +76,12 @@ export default function LocationsPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:5000/api/service-ids", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/service-ids",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok)
           throw new Error("Failed to fetch delivery service IDs.");
@@ -121,7 +127,9 @@ export default function LocationsPage() {
   // Fetch the owners data from the backend
   const fetchEmployees = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/employees");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/employees",
+      );
 
       if (!response.ok) throw new Error("Failed to fetch locations");
 
@@ -182,21 +190,24 @@ export default function LocationsPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/add-employee", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip_username: addEmployeeData.username,
-          ip_first_name: addEmployeeData.first_name,
-          ip_last_name: addEmployeeData.last_name,
-          ip_address: addEmployeeData.address,
-          ip_birthdate: addEmployeeData.birthdate,
-          ip_taxID: addEmployeeData.taxID,
-          ip_hired: addEmployeeData.hired,
-          ip_employee_experience: addEmployeeData.employee_experience,
-          ip_salary: addEmployeeData.salary,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-employee",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ip_username: addEmployeeData.username,
+            ip_first_name: addEmployeeData.first_name,
+            ip_last_name: addEmployeeData.last_name,
+            ip_address: addEmployeeData.address,
+            ip_birthdate: addEmployeeData.birthdate,
+            ip_taxID: addEmployeeData.taxID,
+            ip_hired: addEmployeeData.hired,
+            ip_employee_experience: addEmployeeData.employee_experience,
+            ip_salary: addEmployeeData.salary,
+          }),
+        },
+      );
 
       const result = await response.json();
 
@@ -242,14 +253,17 @@ export default function LocationsPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/hire-employee", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip_username: hireEmployeeData.username,
-          ip_id: hireEmployeeData.id,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/hire-employee",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ip_username: hireEmployeeData.username,
+            ip_id: hireEmployeeData.id,
+          }),
+        },
+      );
 
       const result = await response.json();
 
@@ -295,14 +309,17 @@ export default function LocationsPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/fire-employee", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip_username: fireEmployeeData.username,
-          ip_id: fireEmployeeData.id,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/fire-employee",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ip_username: fireEmployeeData.username,
+            ip_id: fireEmployeeData.id,
+          }),
+        },
+      );
 
       const result = await response.json();
 

@@ -16,6 +16,7 @@ import {
   CircularProgress,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
+import { useConfig } from "../ConfigContext";
 
 // Adjust the interface to match the data from the API
 interface Business {
@@ -23,13 +24,14 @@ interface Business {
 }
 
 export default function WorkersPage() {
+  const { port } = useConfig();
   const [workers, setWorkers] = useState<Business[]>([]); // State to store the businesses data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
 
   // Fetch the businesses data from the backend
   const fetchWorkers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/workers");
+      const response = await fetch("http://localhost:" + port + "/api/workers");
 
       if (!response.ok) throw new Error("Failed to fetch workers");
 
@@ -52,7 +54,7 @@ export default function WorkersPage() {
     async load({ signal, filterText }) {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/employee-usernames",
+          "http://localhost:" + port + "/api/employee-usernames",
           {
             signal,
           },
@@ -129,7 +131,7 @@ export default function WorkersPage() {
       console.log("Submitting form with data:", addWorkerRoleData);
 
       const response = await fetch(
-        "http://localhost:5000/api/add-worker-role",
+        "http://localhost:" + port + "/api/add-worker-role",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

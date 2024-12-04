@@ -18,6 +18,8 @@ import {
 } from "@nextui-org/react";
 import axios from "axios";
 import { useAsyncList } from "@react-stately/data";
+import { useConfig } from "../ConfigContext";
+
 
 // Adjust the interface to match the data from the API
 interface Driver {
@@ -28,6 +30,7 @@ interface Driver {
 }
 
 export default function DriversPage() {
+  const { port } = useConfig();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [usernames, setUsernames] = useState<
     { label: string; value: string }[]
@@ -40,7 +43,7 @@ export default function DriversPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/driver-usernames",
+          "http://localhost:" + port + "api/driver-usernames",
           { signal },
         );
 
@@ -73,7 +76,7 @@ export default function DriversPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:5000/api/usernames", {
+        const response = await fetch("http://localhost:" + port + "/api/usernames", {
           signal,
         });
 
@@ -106,7 +109,7 @@ export default function DriversPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:5000/api/service-ids", {
+        const response = await fetch("http://localhost:" + port + "/api/service-ids", {
           signal,
         });
 
@@ -138,7 +141,7 @@ export default function DriversPage() {
   // Fetch the drivers data from the backend
   const fetchDrivers = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/drivers");
+      const response = await fetch("http://localhost:" + port + "/api/drivers");
 
       if (!response.ok) throw new Error("Failed to fetch drivers");
 
@@ -205,7 +208,7 @@ export default function DriversPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/takeover-van", {
+      const response = await fetch("http://localhost:" + port + "/api/takeover-van", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -260,7 +263,7 @@ export default function DriversPage() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/remove-driver-role",
+        "http://localhost:" + port + "/api/remove-driver-role",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -325,7 +328,7 @@ export default function DriversPage() {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/add-driver-role",
+        "http://localhost:" + port + "/api/add-driver-role",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

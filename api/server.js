@@ -23,9 +23,16 @@ const db = mysql.createConnection({
     res.send('Server is up and running!');
   });
 
-// Start the server
-app.listen(5000, '0.0.0.0', () => {
-  console.log('Server is running on http://localhost:5000');
+// Get the port from the environment variable (or default to 5000)
+const port = process.env.PORT || 5000;
+
+app.listen(port, () => {
+  console.log(`Server is running on http://localhost:${port}`);
+});
+
+// Send the port to the frontend
+app.get('/api/config', (req, res) => {
+  res.json({ port: process.env.PORT || 5000 });
 });
 
 // FETCHING USERNAMES FOR AUTOCOMPLETES

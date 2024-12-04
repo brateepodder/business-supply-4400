@@ -18,6 +18,8 @@ import {
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
 
+import { useConfig } from "../ConfigContext";
+
 // Adjust the interface to match the data from the API
 interface Product {
   product_name: string;
@@ -28,6 +30,7 @@ interface Product {
 }
 
 export default function LocationsPage() {
+  const { port } = useConfig();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -37,7 +40,7 @@ export default function LocationsPage() {
       try {
         // Fetch all product barcode without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/product-barcodes",
+          "http://localhost:" + port + "/api/product-barcodes",
           { signal },
         );
 
@@ -60,6 +63,7 @@ export default function LocationsPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -68,7 +72,9 @@ export default function LocationsPage() {
   // Fetch the products data from the backend
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/products");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/products",
+      );
 
       if (!response.ok) throw new Error("Failed to fetch locations");
 
@@ -130,11 +136,14 @@ export default function LocationsPage() {
     try {
       console.log("Submitting form with data:", removeProductData);
 
-      const response = await fetch("http://localhost:5000/api/remove-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(removeProductData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/remove-product",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(removeProductData),
+        },
+      );
 
       const result = await response.json();
 
@@ -164,7 +173,7 @@ export default function LocationsPage() {
   // Form data for add owner form
   const [addProductData, setAddProductData] = useState({
     barcode: "",
-    name: "", 
+    name: "",
     weight: "",
   });
 
@@ -190,11 +199,14 @@ export default function LocationsPage() {
     try {
       console.log("Submitting form with data:", addProductData);
 
-      const response = await fetch("http://localhost:5000/api/add-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addProductData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-product",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addProductData),
+        },
+      );
 
       const result = await response.json();
 

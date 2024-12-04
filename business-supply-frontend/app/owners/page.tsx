@@ -10,15 +10,15 @@ import {
   TableCell,
   Autocomplete,
   AutocompleteItem,
-  user,
 } from "@nextui-org/react";
 import { Input } from "@nextui-org/react";
 import { CircularProgress } from "@nextui-org/react";
 import { Card } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@nextui-org/react";
-import axios from "axios";
 import { useAsyncList } from "@react-stately/data";
+
+import { useConfig } from "../ConfigContext";
 
 // Adjust the interface to match the data from the API
 interface Owner {
@@ -34,6 +34,7 @@ interface Owner {
 }
 
 export default function OwnersPage() {
+  const { port } = useConfig();
   // State to store owner loading data
   const [owners, setOwners] = useState<Owner[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -41,7 +42,7 @@ export default function OwnersPage() {
   // Fetch the owners data from the backend
   const fetchOwners = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/owners");
+      const response = await fetch("http://localhost:" + port + "/api/owners");
 
       if (!response.ok) throw new Error("Failed to fetch owners");
 
@@ -66,7 +67,7 @@ export default function OwnersPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/owner-usernames",
+          "http://localhost:" + port + "/api/owner-usernames",
           { signal },
         );
 
@@ -101,7 +102,7 @@ export default function OwnersPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/businesses-names",
+          "http://localhost:" + port + "/api/businesses-names",
           { signal },
         );
 
@@ -175,11 +176,14 @@ export default function OwnersPage() {
     try {
       console.log("Submitting form with data:", addOwnerData);
 
-      const response = await fetch("http://localhost:5000/api/add-owner", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addOwnerData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-owner",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addOwnerData),
+        },
+      );
 
       const result = await response.json();
 
@@ -234,16 +238,19 @@ export default function OwnersPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:5000/api/start-funding", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip_owner: fundingData.owner,
-          ip_amount: parseInt(fundingData.amount),
-          ip_long_name: fundingData.business,
-          ip_fund_date: fundingData.fundDate,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/start-funding",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ip_owner: fundingData.owner,
+            ip_amount: parseInt(fundingData.amount),
+            ip_long_name: fundingData.business,
+            ip_fund_date: fundingData.fundDate,
+          }),
+        },
+      );
 
       const result = await response.json();
 

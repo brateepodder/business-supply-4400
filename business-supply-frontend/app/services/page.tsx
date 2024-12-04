@@ -17,6 +17,8 @@ import { Card } from "@nextui-org/react";
 import { Button } from "@nextui-org/react";
 import { Divider } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
+
+import { useConfig } from "../ConfigContext";
 interface Service {
   id: string;
   long_name: string;
@@ -29,13 +31,16 @@ interface Service {
 }
 
 export default function ServicesPage() {
+  const { port } = useConfig();
   const [services, setServices] = useState<Service[]>([]); // State to store the services data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
 
   // Fetch the services data from the backend
   const fetchServices = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/services");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/services",
+      );
 
       if (!response.ok) throw new Error("Failed to fetch services");
 
@@ -58,7 +63,7 @@ export default function ServicesPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:5000/api/worker-usernames",
+          "http://localhost:" + port + "/api/worker-usernames",
           { signal },
         );
 
@@ -81,6 +86,7 @@ export default function ServicesPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -90,9 +96,12 @@ export default function ServicesPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:5000/api/service-ids", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/service-ids",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok)
           throw new Error("Failed to fetch delivery service IDs");
@@ -114,6 +123,7 @@ export default function ServicesPage() {
         };
       } catch (error) {
         console.error("Error fetching delivery service IDs:", error);
+
         return { items: [] };
       }
     },
@@ -158,11 +168,14 @@ export default function ServicesPage() {
     try {
       console.log("Submitting form with data:", addServiceData);
 
-      const response = await fetch("http://localhost:5000/api/manage-service", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(manageServiceData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/manage-service",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(manageServiceData),
+        },
+      );
 
       const result = await response.json();
 
@@ -230,11 +243,14 @@ export default function ServicesPage() {
     try {
       console.log("Submitting form with data:", addServiceData);
 
-      const response = await fetch("http://localhost:5000/api/add-service", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addServiceData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-service",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addServiceData),
+        },
+      );
 
       const result = await response.json();
 
@@ -319,8 +335,8 @@ export default function ServicesPage() {
               <Input
                 required
                 className="flex-1"
-                label="Label"
-                name="label"
+                label="Delivery Service ID"
+                name="id"
                 type="text"
                 value={addServiceData.id}
                 onChange={handleAddServiceChange}
@@ -328,26 +344,26 @@ export default function ServicesPage() {
               <Input
                 required
                 className="flex-1"
-                label="X Coordinate"
-                name="x_coord"
-                type="number"
+                label="Business Name"
+                name="long_name"
+                type="text"
                 value={addServiceData.long_name}
                 onChange={handleAddServiceChange}
               />
               <Input
                 required
                 className="flex-1"
-                label="Y Coordinate"
-                name="y_coord"
-                type="number"
+                label="Home Base"
+                name="home_base"
+                type="text"
                 value={addServiceData.home_base}
                 onChange={handleAddServiceChange}
               />
               <Input
                 required
                 className="flex-1"
-                label="Location Space"
-                name="space"
+                label="Manager Username"
+                name="manager"
                 type="number"
                 value={addServiceData.manager}
                 onChange={handleAddServiceChange}

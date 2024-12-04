@@ -17,6 +17,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
+import { useConfig } from "../ConfigContext";
 
 // Adjust the interface to match the data from the API
 interface Contains {
@@ -35,6 +36,7 @@ interface Business {
 }
 
 export default function BusinessesPage() {
+  const { port } = useConfig();
   const [contains, setContains] = useState<Contains[]>([]); // State to store the businesses data
   const [businesses, setBusinesses] = useState<Business[]>([]); // State to store the businesses data
   const [loading, setLoading] = useState<boolean>(true); // Loading state
@@ -42,7 +44,7 @@ export default function BusinessesPage() {
   // Fetch the businesses data from the backend
   const fetchBusinesses = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/businesses");
+      const response = await fetch("http://localhost:" + port + "/api/businesses");
 
       if (!response.ok) throw new Error("Failed to fetch businesses");
 
@@ -59,7 +61,7 @@ export default function BusinessesPage() {
   // Fetch the contains data from the backend
   const fetchContains = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/contains");
+      const response = await fetch("http://localhost:" + port + "/api/contains");
 
       if (!response.ok) throw new Error("Failed to information from contains table.");
 
@@ -86,7 +88,7 @@ export default function BusinessesPage() {
     async load({ signal, filterText }) {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/location-names",
+          "http://localhost:" + port + "/api/location-names",
           {
             signal,
           },
@@ -121,7 +123,7 @@ export default function BusinessesPage() {
     async load({ signal, filterText }) {
       try {
         const response = await fetch(
-          "http://localhost:5000/api/businesses-names",
+          "http://localhost:" + port + "/api/businesses-names",
           {
             signal,
           },
@@ -155,7 +157,7 @@ export default function BusinessesPage() {
   let serviceIDs = useAsyncList({
     async load({ signal, filterText }) {
       try {
-        const response = await fetch("http://localhost:5000/api/service-ids", {
+        const response = await fetch("http://localhost:" + port + "/api/service-ids", {
           signal,
         });
 
@@ -187,7 +189,7 @@ export default function BusinessesPage() {
   let productBarcodes = useAsyncList({
     async load({ signal, filterText }) {
       try {
-        const response = await fetch("http://localhost:5000/api/product-barcodes", {
+        const response = await fetch("http://localhost:" + port + "/api/product-barcodes", {
           signal,
         });
 
@@ -275,7 +277,7 @@ export default function BusinessesPage() {
     try {
       console.log("Submitting form with data:", addBusinessData);
 
-      const response = await fetch("http://localhost:5000/api/add-business", {
+      const response = await fetch("http://localhost:" + port + "/api/add-business", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(addBusinessData),
@@ -343,7 +345,7 @@ export default function BusinessesPage() {
     try {
       console.log("Submitting form with data:", purchaseProductData);
 
-      const response = await fetch("http://localhost:5000/api/purchase-product", {
+      const response = await fetch("http://localhost:" + port + "/api/purchase-product", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(purchaseProductData),
