@@ -15,6 +15,15 @@ const db = mysql.createConnection({
     port: 3306 // Default MySQL port (you can change it if necessary)
   });
 
+  app.get('/ping', (req, res) => {
+    res.send('Server is up and running!');
+  });
+
+// Start the server
+app.listen(5000, '0.0.0.0', () => {
+  console.log('Server is running on http://localhost:5000');
+});
+
 // FETCHING USERNAMES FOR AUTOCOMPLETES
 
 // Fetching all usernames
@@ -97,6 +106,26 @@ app.get("/api/driver-usernames", async (req, res) => {
   }
 });
 
+// Fetching employee's usernames
+app.get("/api/employee-usernames", async (req, res) => {
+  const query = "SELECT username FROM business_supply.display_employee_view";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.username);
+      console.log("Employee usernames: ", usernames);
+      res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 // Fetching businesses's names
 app.get("/api/businesses-names", async (req, res) => {
   const query = "SELECT long_name FROM business_supply.businesses;";
@@ -130,6 +159,46 @@ app.get("/api/service-ids", async (req, res) => {
       const serviceIDs = results.map((row) => row.id);
       console.log("Delivery Service IDs Fetching API result: ", serviceIDs);
       res.json(serviceIDs);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching all product barcodes
+app.get("/api/product-barcodes", async (req, res) => {
+  const query = "SELECT barcode FROM business_supply.products;";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.barcode);
+      console.log("Product barcodes: ", usernames);
+      res.json(usernames);
+    });
+  } catch (error) {
+    console.error("Server error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Fetching locations
+app.get("/api/location-names", async (req, res) => {
+  const query = "SELECT label FROM business_supply.locations";
+  try {
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error("Database error:", err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const usernames = results.map((row) => row.label);
+      console.log("Owner usernames: ", usernames);
+      res.json(usernames);
     });
   } catch (error) {
     console.error("Server error:", error);
@@ -217,6 +286,25 @@ app.get('/api/locations', async (req, res) => {
     }
 });
 
+// Workers View
+app.get('/api/workers', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM workers';
+    console.log('Running query:', query);
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Query error:', err);
+        return res.status(500).json({ error: 'Failed to fetch data' });
+      }
+      console.log('Query results:', results);
+      res.json(results);
+    });
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({ error: 'Unexpected server error' });
+  }
+});
+
 // Product View
 app.get('/api/products', async (req, res) => {
     try {
@@ -293,13 +381,23 @@ app.get('/api/businesses', async (req, res) => {
     }
 });
 
-  app.get('/ping', (req, res) => {
-    res.send('Server is up and running!');
-  });
-
-// Start the server
-app.listen(5000, '0.0.0.0', () => {
-  console.log('Server is running on http://localhost:5000');
+// Contains Table 
+app.get('/api/contains', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM business_supply.contain';
+    console.log('Running query:', query);
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Query error:', err);
+        return res.status(500).json({ error: 'Failed to fetch data' });
+      }
+      console.log('Query results:', results);
+      res.json(results);
+    });
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({ error: 'Unexpected server error' });
+  }
 });
 
 // STORED PROCEDURES
@@ -901,18 +999,18 @@ app.post("/api/add-van", async (req, res) => {
 // LOAD VAN load_van()
 app.post("/api/load-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price } = req.body;
+  const { id, tag, barcode, product_amount, price } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_id || !ip_tag || !ip_barcode || !ip_more_packages || !ip_price ) {
+  if ( !id || !tag || !barcode || !product_amount || !price ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.load_van(?, ?, ?, ?, ?);`;
-  const values = [ip_id, ip_tag, ip_barcode, ip_more_packages, ip_price];
+  const values = [id, tag, barcode, product_amount, price];
 
   try {
       db.query(query, values, (err, results) => {
@@ -943,18 +1041,18 @@ app.post("/api/load-van", async (req, res) => {
 // REFUEL VAN refuel_van()
 app.post("/api/refuel-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_tag, ip_more_fuel } = req.body;
+  const { id, tag, fuel } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_id || !ip_tag || !ip_more_fuel ) {
+  if ( !id || !tag || !fuel ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.refuel_van(?, ?, ?);`;
-  const values = [ip_id, ip_tag, ip_more_fuel];
+  const values = [id, tag, fuel];
 
   try {
       db.query(query, values, (err, results) => {
@@ -985,18 +1083,18 @@ app.post("/api/refuel-van", async (req, res) => {
 // DRIVE VAN drive_van()
 app.post("/api/drive-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_tag, ip_destination } = req.body;
+  const { id, tag, destination } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_id || !ip_tag || !ip_destination ) {
+  if ( !id || !tag || !destination ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.drive_van(?, ?, ?);`;
-  const values = [ip_id, ip_tag, ip_destination];
+  const values = [id, tag, destination];
 
   try {
       db.query(query, values, (err, results) => {
@@ -1027,18 +1125,18 @@ app.post("/api/drive-van", async (req, res) => {
 // REMOVE VAN remove_van()
 app.post("/api/remove-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_tag } = req.body;
+  const { id, tag } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_id || !ip_tag ) {
+  if ( !id || !tag ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.remove_van(?, ?);`;
-  const values = [ip_id, ip_tag];
+  const values = [id, tag];
 
   try {
       db.query(query, values, (err, results) => {
@@ -1069,18 +1167,18 @@ app.post("/api/remove-van", async (req, res) => {
 // ADD BUSINESS add_business()
 app.post("/api/add-business", async (req, res) => {
   // Map received fields to expected names
-  const { ip_long_name, ip_rating, ip_spent, ip_location } = req.body;
+  const { name, rating, spent, location } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_long_name || !ip_rating || !ip_spent || !ip_location ) {
+  if ( !name || !rating || !spent || !location ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.add_business(?, ?, ?, ?);`;
-  const values = [ip_long_name, ip_rating, ip_spent, ip_location];
+  const values = [name, rating, spent, location];
 
   try {
       db.query(query, values, (err, results) => {
@@ -1111,18 +1209,18 @@ app.post("/api/add-business", async (req, res) => {
 // PURCHASE PRODUCT purchase_product()
 app.post("/api/purchase-product", async (req, res) => {
   // Map received fields to expected names
-  const { ip_long_name, ip_id, ip_tag, ip_barcode, ip_quantity } = req.body;
+  const { business, id, tag, barcode, quantity } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_long_name || !ip_id || !ip_tag || !ip_barcode || !ip_quantity ) {
+  if ( !business || !id || !tag || !barcode || !quantity ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.purchase_product(?, ?, ?, ?, ?);`;
-  const values = [ip_long_name, ip_id, ip_tag, ip_barcode, ip_quantity];
+  const values = [business, id, tag, barcode, quantity];
 
   try {
       db.query(query, values, (err, results) => {
@@ -1153,18 +1251,18 @@ app.post("/api/purchase-product", async (req, res) => {
 // ADD WORKER ROLE add_worker_role()
 app.post("/api/add-worker-role", async (req, res) => {
   // Map received fields to expected names
-  const { ip_usernmae } = req.body;
+  const { username } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_username ) {
+  if ( !username ) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.add_worker_role(?);`;
-  const values = [ip_username];
+  const values = [username];
 
   try {
       db.query(query, values, (err, results) => {
