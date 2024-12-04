@@ -42,10 +42,13 @@ Follow these steps to download and run the project locally:
 Open a terminal and run the following command:
 ```bash
 git clone https://github.com/your-username/business-supply.git
-cd business-supply```
+cd business-supply
+```
 
-### 2. Create your own dotenv
-
+### 2. Create your own dotenv in the api folder (backend folder)
+```bash
+cd api
+```
 DB_HOST=localhost
 DB_USER=your_username
 DB_PASSWORD=your_password
@@ -56,5 +59,5 @@ DB_PORT=3306
 
 https://nodejs.org/en/download/prebuilt-installer
 
-OR download it 
+
 
