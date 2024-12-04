@@ -44,4 +44,6 @@ Open a terminal and run the following command:
 git clone https://github.com/your-username/business-supply.git
 cd business-supply
 
+OR 
+
 
