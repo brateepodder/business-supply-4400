@@ -42,8 +42,10 @@ Follow these steps to download and run the project locally:
 Open a terminal and run the following command:
 ```bash
 git clone https://github.com/your-username/business-supply.git
-cd business-supply
+cd business-supply```
 
 OR 
+
+Use the 
 
 
