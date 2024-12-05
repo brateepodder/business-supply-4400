@@ -24,7 +24,7 @@ export const ConfigProvider: React.FC<{ children: React.ReactNode }> = ({
     // Simulating fetching from an API or using environment variables
     const fetchConfig = async () => {
       setConfig({
-        port: process.env.PORT || "5000", // Default port if not specified
+        port: process.env.NEXT_PUBLIC_PORT || "5000", // Default port if not specified
       });
     };
 
