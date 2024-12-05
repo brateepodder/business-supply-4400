@@ -48,16 +48,76 @@ cd business-supply
 ### 2. Create your own dotenv in the api folder (backend folder)
 ```bash
 cd api
+touch .env
 ```
+or you can manually create a new .env file under the api folder.
+
+Enter the following information in your .env file: 
+```bash
 DB_HOST=localhost
 DB_USER=your_username
 DB_PASSWORD=your_password
 DB_NAME=business_supply
 DB_PORT=3306
+PORT=your_backend_port
+```
 
-### 3. Download node
+Fill in all the fields according to what they need to be for you. DB_HOST should be localhost as we are using our local database running in MySQL. 
+
+If your password is null (you can check this by opening MySQLWorkbench and clicking the Local Instance, see if it requires a password or not. If it does require a password, enter the password under DB_PASSWORD=your_password or else leave it null so just DB_PASSWORD=). 
+
+Make sure that your MySQL uses local instance 3306. It will usually say this on the front page when you open MySQLWorkbench and you have to choose which connection you want. If there is another number than 3306, go ahead and change DB_PORT to that number. 
+
+The username is often root but this can also be found on the front page under connections.
+
+### 4. Change the port number in .env and ConfigContext.tsx
+
+Choose what port you want to use for your backend (usually use a free port like 5000, 8000, 8080 etc.). Enter this number in your .env file for the PORT variable. 
+
+Then, navigate to the ConfigContext.tsx file located under /business-supply-frontend/app/ConfigContext.tsx and go to line 27. 
+
+```bash
+port: process.env.PORT || "5000", // change this to what you need
+```
+
+Change the port to the one you decide to use for your backend. If you use 8080, then the line would be: 
+```bash
+port: process.env.PORT || "8080", // change this to what you need
+```
+
+
+### 5. Download node
+
+If you don't already have node, please download it. 
 
 https://nodejs.org/en/download/prebuilt-installer
+
+Ensure that your version is 22 or above. You can do this by opening a terminal and typing "node --v". 
+
+Then in the root folder (business-supply-4400), run "npm install" to download all required packages to run this webapp. 
+
+### 6. Run the database and stored procedure file
+
+Open your MySQLWorkbench and run the correct database file (cs4400_phase2_database_schema_SOLUTION_v1.sql) and download our stored procedures file through gradescope's Phase III - Full Autograder latest submission. First run the schema file and then the stored procedures file and make sure that all the right views and stored procedures show up underneath the database. 
+
+### 7. Run the frontend and backend
+
+Run your frontend by navigating to the frontend directory and type "npm run dev":
+```bash
+cd business-supply-frontend
+npm run dev
+```
+
+Open a separate terminal and navigate to the "api" folder (backend directory) and type "node server.js": 
+```bash
+node server.js
+```
+
+### 8. Run your project on a browser
+
+Type "http://localhost:3000" in your browser search to be greeted with the front page. 
+
+
 
 
 
