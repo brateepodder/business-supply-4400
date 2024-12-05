@@ -59,8 +59,10 @@ DB_USER=your_username
 DB_PASSWORD=your_password
 DB_NAME=business_supply
 DB_PORT=3306
-PORT=
+PORT=your_backend_port
 ```
+
+Fill in all the fields according to what they need to be for you. DB_HOST should be localhost as we are using our local database running in MySQL. 
 
 If your password is null (you can check this by opening MySQLWorkbench and clicking the Local Instance, see if it requires a password or not. If it does require a password, enter the password under DB_PASSWORD=your_password or else leave it null so just DB_PASSWORD=). 
 
