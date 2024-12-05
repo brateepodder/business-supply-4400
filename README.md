@@ -81,11 +81,36 @@ port: process.env.PORT || "8080", // change this to what you need
 ```
 
 
-### 3. Download node
+### 5. Download node
 
 If you don't already have node, please download it. 
 
 https://nodejs.org/en/download/prebuilt-installer
+
+Ensure that your version is 22 or above. You can do this by opening a terminal and typing "node --v". 
+
+Then in the root folder (business-supply-4400), run "npm install" to download all required packages to run this webapp. 
+
+### 6. Run the database and stored procedure file
+
+Open your MySQLWorkbench and run the correct database file (cs4400_phase2_database_schema_SOLUTION_v1.sql) and download our stored procedures file through gradescope's Phase III - Full Autograder latest submission. First run the schema file and then the stored procedures file and make sure that all the right views and stored procedures show up underneath the database. 
+
+### 7. Run the frontend and backend
+
+Run your frontend by navigating to the frontend directory and type "npm run dev":
+```bash
+cd business-supply-frontend
+npm run dev
+```
+
+Open a separate terminal and navigate to the "api" folder (backend directory) and type "node server.js": 
+```bash
+node server.js
+```
+
+### 8. Run your project on a browser
+
+Type "http://localhost:3000" in your browser search to be greeted with the front page. 
 
 
 
