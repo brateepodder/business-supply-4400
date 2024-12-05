@@ -6,6 +6,8 @@ This was created by Bratee Podder and Yueru Zhou, Phase IV Group 38, of GeorgiaT
 
 Please scroll down to read our instructions on how to use this repository in your local computer with your local database. 
 
+To learn more you can also access our Notion page: https://www.notion.so/Phase-IV-CS4400-14e9f7fa2d4980a181a2fb94ed985d1d?pvs=4
+
 ---
 
 ## 🌟 Features
