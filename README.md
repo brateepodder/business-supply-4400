@@ -52,12 +52,15 @@ touch .env
 ```
 or you can manually create a new .env file under the api folder.
 
+Enter the following information in your .env file: 
+```bash
 DB_HOST=localhost
 DB_USER=your_username
 DB_PASSWORD=your_password
 DB_NAME=business_supply
 DB_PORT=3306
 PORT=
+```
 
 If your password is null (you can check this by opening MySQLWorkbench and clicking the Local Instance, see if it requires a password or not. If it does require a password, enter the password under DB_PASSWORD=your_password or else leave it null so just DB_PASSWORD=). 
 
