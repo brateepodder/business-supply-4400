@@ -456,7 +456,7 @@ export default function BusinessesPage() {
               onSubmit={handleAddBusinessSubmit}
             >
               <Input
-                required
+                //
                 className="flex-1"
                 label="Business Name"
                 name="name"
@@ -465,7 +465,7 @@ export default function BusinessesPage() {
                 onChange={handleAddBusinessChange}
               />
               <Input
-                required
+                //
                 className="flex-1"
                 label="Rating"
                 name="rating"
@@ -474,7 +474,7 @@ export default function BusinessesPage() {
                 onChange={handleAddBusinessChange}
               />
               <Input
-                required
+                //
                 className="flex-1"
                 label="Spent"
                 name="spent"
@@ -591,7 +591,6 @@ export default function BusinessesPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"
@@ -621,7 +620,6 @@ export default function BusinessesPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Quantity"
                 name="quantity"
