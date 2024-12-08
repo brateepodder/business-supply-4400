@@ -133,10 +133,10 @@ export default function OwnersPage() {
 
   // Handle Autocomplete selection
   const handleAutocompleteSelect = (key: string, value: string) => {
-    if (key === "startFundingUsernames") {
+    if (key === "startFundingUsername") {
       setFundingData((prev) => ({ ...prev, owner: value }));
     }
-    if (key === "startFundingBusinessName") {
+    if (key === "startFundingBusiness") {
       setFundingData((prev) => ({ ...prev, business: value }));
     }
   };
@@ -167,15 +167,19 @@ export default function OwnersPage() {
     setAddOwnerMessage(null);
 
     // Validate form fields
-    if (!addOwnerData.username || !addOwnerData.birthdate) {
-      setAddOwnerMessage("Please add a username and a birthdate.");
+    if (
+      !addOwnerData.username ||
+      !addOwnerData.birthdate ||
+      !addOwnerData.first_name ||
+      !addOwnerData.last_name ||
+      !addOwnerData.address
+    ) {
+      setAddOwnerMessage("No fields can be left null.");
 
       return;
     }
 
     try {
-      console.log("Submitting form with data:", addOwnerData);
-
       const response = await fetch(
         "http://localhost:" + port + "/api/add-owner",
         {
@@ -189,12 +193,8 @@ export default function OwnersPage() {
 
       console.log("Response from server:", result);
 
-      if (response.ok) {
-        setAddOwnerMessage(result.message || "An error occured.");
-        await fetchOwners();
-      } else {
-        setAddOwnerMessage(result.message || "An error occured.");
-      }
+      setAddOwnerMessage(result.message || "An error occured.");
+      await fetchOwners();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddOwnerMessage("Failed to add owner.");
@@ -226,12 +226,7 @@ export default function OwnersPage() {
     e.preventDefault();
     setFundingMessage(null);
 
-    if (
-      !fundingData.owner ||
-      !fundingData.amount ||
-      !fundingData.business ||
-      !fundingData.fundDate
-    ) {
+    if (!fundingData.owner || !fundingData.amount || !fundingData.business || !fundingData.fundDate) {
       setFundingMessage("All fields are required.");
 
       return;
@@ -243,21 +238,14 @@ export default function OwnersPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_owner: fundingData.owner,
-            ip_amount: parseInt(fundingData.amount),
-            ip_long_name: fundingData.business,
-            ip_fund_date: fundingData.fundDate,
-          }),
+          body: JSON.stringify(fundingData),
         },
       );
 
       const result = await response.json();
 
-      if (response.ok) {
-        setFundingMessage(result.message || "An error occured.");
-        await fetchOwners();
-      }
+      setFundingMessage(result.message || "An error occured.");
+      await fetchOwners();
     } catch (error) {
       console.error("Error starting funding:", error);
       setFundingMessage("Failed to start funding.");
@@ -421,7 +409,7 @@ export default function OwnersPage() {
                 placeholder="Search for a username"
                 onInputChange={ownerList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("startFunding", selected as string)
+                  handleAutocompleteSelect("startFundingUsername", selected as string)
                 }
               >
                 {(item) => (
@@ -447,7 +435,7 @@ export default function OwnersPage() {
                 placeholder="Search for a business name"
                 onInputChange={businessNamesList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("startFunding", selected as string)
+                  handleAutocompleteSelect("startFundingBusiness", selected as string)
                 }
               >
                 {(item) => (

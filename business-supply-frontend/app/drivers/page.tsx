@@ -16,10 +16,9 @@ import {
   Input,
   CircularProgress,
 } from "@nextui-org/react";
-import axios from "axios";
 import { useAsyncList } from "@react-stately/data";
-import { useConfig } from "../ConfigContext";
 
+import { useConfig } from "../ConfigContext";
 
 // Adjust the interface to match the data from the API
 interface Driver {
@@ -43,7 +42,7 @@ export default function DriversPage() {
       try {
         // Fetch all usernames without using filterText
         const response = await fetch(
-          "http://localhost:" + port + "api/driver-usernames",
+          "http://localhost:" + port + "/api/driver-usernames",
           { signal },
         );
 
@@ -66,6 +65,7 @@ export default function DriversPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -76,9 +76,12 @@ export default function DriversPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:" + port + "/api/usernames", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/usernames",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok) throw new Error("Failed to fetch usernames.");
 
@@ -99,6 +102,7 @@ export default function DriversPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -109,9 +113,12 @@ export default function DriversPage() {
     async load({ signal, filterText }) {
       try {
         // Fetch all usernames without using filterText
-        const response = await fetch("http://localhost:" + port + "/api/service-ids", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/service-ids",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok)
           throw new Error("Failed to fetch delivery service IDs.");
@@ -133,6 +140,7 @@ export default function DriversPage() {
         };
       } catch (error) {
         console.error("Error fetching usernames:", error);
+
         return { items: [] };
       }
     },
@@ -163,11 +171,14 @@ export default function DriversPage() {
   const handleAutocompleteSelect = (key: string, value: string) => {
     if (key === "addDriverRole") {
       setAddDriverRoleData((prev) => ({ ...prev, username: value }));
-    } else if (key === "takeoverVanUsername") {
+    }
+    if (key === "takeoverVanUsername") {
       setTakeoverVanData((prev) => ({ ...prev, username: value }));
-    } else if (key === "takeoverVanServiceID") {
+    }
+    if (key === "takeoverVanServiceID") {
       setTakeoverVanData((prev) => ({ ...prev, id: value }));
-    } else if (key === "removeDriverRole") {
+    }
+    if (key === "removeDriverRole") {
       setRemoveDriverRoleData((prev) => ({ ...prev, username: value }));
     }
   };
@@ -208,13 +219,14 @@ export default function DriversPage() {
     }
 
     try {
-      const response = await fetch("http://localhost:" + port + "/api/takeover-van", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ip_username: takeoverVanData.username,
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/takeover-van",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(takeoverVanData),
+        },
+      );
 
       const result = await response.json();
 
@@ -250,7 +262,7 @@ export default function DriversPage() {
     });
   };
 
-  // Handle funding form submission
+  // Handle remove driver role submission
   const handleRemoveDriverRoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setRemoveDriverRoleMessage(null);
@@ -267,9 +279,7 @@ export default function DriversPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_username: removeDriverRoleData.username,
-          }),
+          body: JSON.stringify(removeDriverRoleData),
         },
       );
 
@@ -310,7 +320,7 @@ export default function DriversPage() {
     });
   };
 
-  // Handle funding form submission
+  // Handle add driver role submission
   const handleAddDriverRoleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAddDriverRoleMessage(null);
@@ -332,12 +342,7 @@ export default function DriversPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_username: addDriverRoleData.username,
-            ip_licenseID: addDriverRoleData.license_id,
-            ip_license_type: addDriverRoleData.license_type,
-            ip_driver_experience: addDriverRoleData.driver_experience,
-          }),
+          body: JSON.stringify(addDriverRoleData),
         },
       );
 

@@ -33,6 +33,9 @@ interface Employee {
 
 export default function LocationsPage() {
   const { port } = useConfig();
+  // Add separate states for each autocomplete's filter text
+  const [fireEmployeeFilterText, setFireEmployeeFilterText] = useState("");
+  const [hireEmployeeFilterText, setHireEmployeeFilterText] = useState("");
   const [owners, setOwners] = useState<Employee[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -176,15 +179,16 @@ export default function LocationsPage() {
 
     if (
       !addEmployeeData.username ||
+      !addEmployeeData.first_name ||
+      !addEmployeeData.last_name ||
+      !addEmployeeData.address ||
       !addEmployeeData.birthdate ||
       !addEmployeeData.taxID ||
       !addEmployeeData.salary ||
       !addEmployeeData.employee_experience ||
       !addEmployeeData.hired
     ) {
-      setAddEmployeeMessage(
-        "Owner, birthdate, taxID, salary, experience and hired are required fields.",
-      );
+      setAddEmployeeMessage("All fields are required.");
 
       return;
     }
@@ -195,28 +199,14 @@ export default function LocationsPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_username: addEmployeeData.username,
-            ip_first_name: addEmployeeData.first_name,
-            ip_last_name: addEmployeeData.last_name,
-            ip_address: addEmployeeData.address,
-            ip_birthdate: addEmployeeData.birthdate,
-            ip_taxID: addEmployeeData.taxID,
-            ip_hired: addEmployeeData.hired,
-            ip_employee_experience: addEmployeeData.employee_experience,
-            ip_salary: addEmployeeData.salary,
-          }),
+          body: JSON.stringify(addEmployeeData),
         },
       );
 
       const result = await response.json();
 
-      if (response.ok) {
-        setAddEmployeeMessage(result.message);
-        await fetchEmployees();
-      } else {
-        setAddEmployeeMessage(result.message || "An error occurred.");
-      }
+      setAddEmployeeMessage(result.message);
+      await fetchEmployees();
     } catch (error) {
       console.error("Error starting funding:", error);
       setAddEmployeeMessage("Failed to start funding.");
@@ -258,21 +248,19 @@ export default function LocationsPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_username: hireEmployeeData.username,
-            ip_id: hireEmployeeData.id,
-          }),
+          body: JSON.stringify(hireEmployeeData),
         },
       );
+
 
       const result = await response.json();
 
       if (response.ok) {
         setHireEmployeeMessage(result.message);
-        await fetchEmployees();
       } else {
         setHireEmployeeMessage(result.message || "An error occurred.");
       }
+      fetchEmployees();
     } catch (error) {
       console.error("Error hiring employee:", error);
       setHireEmployeeMessage("Failed to hire employee.");
@@ -314,21 +302,14 @@ export default function LocationsPage() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ip_username: fireEmployeeData.username,
-            ip_id: fireEmployeeData.id,
-          }),
+          body: JSON.stringify(fireEmployeeData),
         },
       );
 
       const result = await response.json();
 
-      if (response.ok) {
-        setFireEmployeeMessage(result.message);
-        await fetchEmployees();
-      } else {
-        setFireEmployeeMessage(result.message || "An error occurred.");
-      }
+      setFireEmployeeMessage(result.message);
+      await fetchEmployees();
     } catch (error) {
       console.error("Error firing employee:", error);
       setFireEmployeeMessage("Failed to fire employee.");
@@ -513,7 +494,7 @@ export default function LocationsPage() {
           <div className="my-8 mx-5">
             <form
               className="flex items-center gap-4"
-              onSubmit={handleHireEmployeeSubmit}
+              onSubmit={handleFireEmployeeSubmit}
             >
               <Autocomplete
                 className="flex-1"
@@ -543,7 +524,7 @@ export default function LocationsPage() {
                 items={deliveryServiceIDs.items} // Items filtered by the filterText
                 label="Delivery Service IDs"
                 placeholder="Search for a delivery service ID"
-                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onInputChange={deliveryServiceIDs.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
                   handleAutocompleteSelect(
                     "hireEmployeeServiceID",
@@ -622,7 +603,7 @@ export default function LocationsPage() {
                 items={deliveryServiceIDs.items} // Items filtered by the filterText
                 label="Delivery Service IDs"
                 placeholder="Search for a delivery service ID"
-                onInputChange={workerList.setFilterText} // Update the filterText on input change
+                onInputChange={deliveryServiceIDs.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
                   handleAutocompleteSelect(
                     "fireEmployeeServiceID",

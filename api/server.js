@@ -459,12 +459,12 @@ app.post("/api/add-owner", async (req, res) => {
 // START FUNDING - start_funding()
 app.post("/api/start-funding", async (req, res) => {
     // Map received fields to expected names
-    const { ip_owner: owner, ip_amount: amount, ip_long_name: business, ip_fund_date: fundDate } = req.body;
+    const { owner, amount, business, fundDate } = req.body;
 
     console.log("Received data:", req.body);
 
     // Validate form fields
-    if (!owner || !amount || !business || !fundDate) {
+    if ( !owner || !amount || !business || !fundDate ) {
         console.log("Validation failed: Some fields are null.");
         return res.status(400).json({ message: "All fields must have entries." });
     }
@@ -501,14 +501,14 @@ app.post("/api/start-funding", async (req, res) => {
 // ADD EMPLOYEE - add_employee()
 app.post("/api/add-employee", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username: username, ip_first_name: first_name, ip_last_name: last_name, ip_address: address, ip_birthdate: birthdate, ip_taxID: taxID, ip_hired: hired, ip_employee_experience: employee_experience, ip_salary: salary } = req.body;
+  const { username, first_name, last_name, address, birthdate, taxID, salary, employee_experience, hired } = req.body;
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!username || !birthdate || !taxID || !hired || !salary || !employee_experience) {
-      console.log("Validation failed: Username, birthdate or tax ID are null.");
-      return res.status(400).json({ message: "Username, birthdate or tax ID must have values." });
+  if (!username || !first_name || !last_name || !address || !birthdate || !taxID || !hired || !salary || !employee_experience) {
+      console.log("Validation failed: No fields can be left null.");
+      return res.status(400).json({ message: "No fields can be left null" });
   }
 
   const query = `CALL business_supply.add_employee(?, ?, ?, ?, ?, ?, ?, ?, ?);`;
@@ -543,7 +543,7 @@ app.post("/api/add-employee", async (req, res) => {
 // HIRE EMPLOYEES - hire_employee()
 app.post("/api/hire-employee", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username: username, ip_id: id } = req.body;
+  const { username, id } = req.body;
 
   console.log("Received data:", req.body);
 
@@ -585,7 +585,7 @@ app.post("/api/hire-employee", async (req, res) => {
 // FIRE EMPLOYEES - fire_employee()
 app.post("/api/fire-employee", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username: username, ip_id: id } = req.body;
+  const { username, id } = req.body;
 
   console.log("Received data:", req.body);
 
@@ -595,7 +595,7 @@ app.post("/api/fire-employee", async (req, res) => {
       return res.status(400).json({ message: "No fields can be null." });
   }
 
-  const query = `CALL business_supply.hire_employee(?, ?);`;
+  const query = `CALL business_supply.fire_employee(?, ?);`;
   const values = [username, id];
 
   try {
@@ -628,10 +628,10 @@ app.post("/api/fire-employee", async (req, res) => {
 app.post("/api/add-driver-role", async (req, res) => {
   // Map received fields to expected names
   const {
-    ip_username: username,
-    ip_licenseID: license_id,
-    ip_license_type: license_type,
-    ip_driver_experience: driver_experience,
+    username,
+    license_id,
+    license_type,
+    driver_experience,
   } = req.body;
 
   console.log("Received data:", req.body);
@@ -674,7 +674,7 @@ app.post("/api/add-driver-role", async (req, res) => {
 // TAKEOVER VAN ROLE - takeover_van()
 app.post("/api/takeover-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username: username, ip_id: id, ip_tag: tag} = req.body;
+  const { username, id, tag} = req.body;
 
   console.log("Received data:", req.body);
 
@@ -716,7 +716,7 @@ app.post("/api/takeover-van", async (req, res) => {
 // REMOVE DRIVER ROLE - remove_driver_role()
 app.post("/api/remove-driver-role", async (req, res) => {
   // Map received fields to expected names
-  const { ip_username: username} = req.body;
+  const { username } = req.body;
 
   console.log("Received data:", req.body);
 
