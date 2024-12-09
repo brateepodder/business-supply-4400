@@ -494,7 +494,7 @@ export default function LocationsPage() {
           <div className="my-8 mx-5">
             <form
               className="flex items-center gap-4"
-              onSubmit={handleFireEmployeeSubmit}
+              onSubmit={handleHireEmployeeSubmit}
             >
               <Autocomplete
                 className="flex-1"

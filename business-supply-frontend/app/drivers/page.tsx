@@ -247,12 +247,12 @@ export default function DriversPage() {
     username: "",
   });
 
-  // Message from backend - takeover_van()
+  // Message from backend - remove_driver_role()
   const [removeDriverRoleMessage, setRemoveDriverRoleMessage] = useState<
     string | null
   >(null);
 
-  // Handle funding form input changes
+  // Handle remove driver role form input changes
   const handleRemoveDriverRoleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
@@ -269,7 +269,6 @@ export default function DriversPage() {
 
     if (!removeDriverRoleData.username) {
       setRemoveDriverRoleMessage("All fields are required.");
-
       return;
     }
 
@@ -285,12 +284,8 @@ export default function DriversPage() {
 
       const result = await response.json();
 
-      if (response.ok) {
-        setRemoveDriverRoleData(result.message);
-        await fetchDrivers(); // Refresh the drivers table
-      } else {
-        setRemoveDriverRoleData(result.message || "An error occurred.");
-      }
+      setRemoveDriverRoleData(result.message);
+      await fetchDrivers(); // Refresh the drivers table
     } catch (error) {
       console.error("Error removing driver:", error);
       setRemoveDriverRoleMessage("Error removing driver.");
