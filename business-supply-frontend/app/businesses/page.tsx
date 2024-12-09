@@ -17,6 +17,7 @@ import {
   Divider,
 } from "@nextui-org/react";
 import { useAsyncList } from "@react-stately/data";
+
 import { useConfig } from "../ConfigContext";
 
 // Adjust the interface to match the data from the API
@@ -44,7 +45,9 @@ export default function BusinessesPage() {
   // Fetch the businesses data from the backend
   const fetchBusinesses = async () => {
     try {
-      const response = await fetch("http://localhost:" + port + "/api/businesses");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/businesses",
+      );
 
       if (!response.ok) throw new Error("Failed to fetch businesses");
 
@@ -61,9 +64,12 @@ export default function BusinessesPage() {
   // Fetch the contains data from the backend
   const fetchContains = async () => {
     try {
-      const response = await fetch("http://localhost:" + port + "/api/contains");
+      const response = await fetch(
+        "http://localhost:" + port + "/api/contains",
+      );
 
-      if (!response.ok) throw new Error("Failed to information from contains table.");
+      if (!response.ok)
+        throw new Error("Failed to information from contains table.");
 
       const data = await response.json();
 
@@ -157,9 +163,12 @@ export default function BusinessesPage() {
   let serviceIDs = useAsyncList({
     async load({ signal, filterText }) {
       try {
-        const response = await fetch("http://localhost:" + port + "/api/service-ids", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/service-ids",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok) throw new Error("Failed to fetch business names.");
 
@@ -189,9 +198,12 @@ export default function BusinessesPage() {
   let productBarcodes = useAsyncList({
     async load({ signal, filterText }) {
       try {
-        const response = await fetch("http://localhost:" + port + "/api/product-barcodes", {
-          signal,
-        });
+        const response = await fetch(
+          "http://localhost:" + port + "/api/product-barcodes",
+          {
+            signal,
+          },
+        );
 
         if (!response.ok) throw new Error("Failed to fetch business names.");
 
@@ -277,11 +289,14 @@ export default function BusinessesPage() {
     try {
       console.log("Submitting form with data:", addBusinessData);
 
-      const response = await fetch("http://localhost:" + port + "/api/add-business", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(addBusinessData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/add-business",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(addBusinessData),
+        },
+      );
 
       const result = await response.json();
 
@@ -301,7 +316,9 @@ export default function BusinessesPage() {
 
   // PURCHASE PRODUCT
   // Handle purchase_product() form input change
-  const handlePurchaseProductChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePurchaseProductChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setPurchaseProductData({
       ...purchaseProductData,
       [e.target.name]: e.target.value,
@@ -318,9 +335,9 @@ export default function BusinessesPage() {
   });
 
   // Message from backend - purchase_product()
-  const [purchaseProductMessage, setPurchaseProductMessage] = useState<string | null>(
-    null,
-  );
+  const [purchaseProductMessage, setPurchaseProductMessage] = useState<
+    string | null
+  >(null);
 
   // Handle purchase_product() form submission
   const handlePurchaseProductSubmit = async (e: React.FormEvent) => {
@@ -337,7 +354,7 @@ export default function BusinessesPage() {
       !purchaseProductData.barcode ||
       !purchaseProductData.quantity
     ) {
-      setAddBusinessMessage("No fields can be left null.");
+      setPurchaseProductMessage("No fields can be left null.");
 
       return;
     }
@@ -345,11 +362,14 @@ export default function BusinessesPage() {
     try {
       console.log("Submitting form with data:", purchaseProductData);
 
-      const response = await fetch("http://localhost:" + port + "/api/purchase-product", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(purchaseProductData),
-      });
+      const response = await fetch(
+        "http://localhost:" + port + "/api/purchase-product",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(purchaseProductData),
+        },
+      );
 
       const result = await response.json();
 
@@ -405,7 +425,7 @@ export default function BusinessesPage() {
       </h1>
       <p className="text-slate-500 mb-8 text-center">
         This table displays information in the system from the perspective of
-        what products the van contains. 
+        what products the van contains.
       </p>
       {loading ? (
         <CircularProgress aria-label="Loading..." />
