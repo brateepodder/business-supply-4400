@@ -411,11 +411,37 @@ app.get('/api/contains', async (req, res) => {
   }
 });
 
+// Locations Table 
+app.get('/api/all-locations', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM business_supply.locations';
+    console.log('Running query:', query);
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Query error:', err);
+        return res.status(500).json({ error: 'Failed to fetch data' });
+      }
+      console.log('Query results:', results);
+      res.json(results);
+    });
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({ error: 'Unexpected server error' });
+  }
+});
+
 // STORED PROCEDURES
 
 // ADD OWNER - add_owner()
 app.post("/api/add-owner", async (req, res) => {
     const { username, first_name, last_name, address, birthdate } = req.body;
+    
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
     console.log("Received data:", req.body);
 
@@ -460,6 +486,13 @@ app.post("/api/add-owner", async (req, res) => {
 app.post("/api/start-funding", async (req, res) => {
     // Map received fields to expected names
     const { owner, amount, business, fundDate } = req.body;
+    
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
     console.log("Received data:", req.body);
 
@@ -502,6 +535,13 @@ app.post("/api/start-funding", async (req, res) => {
 app.post("/api/add-employee", async (req, res) => {
   // Map received fields to expected names
   const { username, first_name, last_name, address, birthdate, taxID, salary, employee_experience, hired } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -544,6 +584,13 @@ app.post("/api/add-employee", async (req, res) => {
 app.post("/api/hire-employee", async (req, res) => {
   // Map received fields to expected names
   const { username, id } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -586,6 +633,13 @@ app.post("/api/hire-employee", async (req, res) => {
 app.post("/api/fire-employee", async (req, res) => {
   // Map received fields to expected names
   const { username, id } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -633,6 +687,13 @@ app.post("/api/add-driver-role", async (req, res) => {
     license_type,
     driver_experience,
   } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -675,6 +736,14 @@ app.post("/api/add-driver-role", async (req, res) => {
 app.post("/api/takeover-van", async (req, res) => {
   // Map received fields to expected names
   const { username, id, tag} = req.body;
+  
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -717,6 +786,13 @@ app.post("/api/takeover-van", async (req, res) => {
 app.post("/api/remove-driver-role", async (req, res) => {
   // Map received fields to expected names
   const { username } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -759,13 +835,20 @@ app.post("/api/remove-driver-role", async (req, res) => {
 app.post("/api/add-location", async (req, res) => {
   // Map received fields to expected names
   const { label, x_coord, y_coord, space } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
   // Validate form fields
   if (!label || !x_coord || !y_coord || !space ) {
-      console.log("Validation failed: No fields can be left null.");
-      return res.status(400).json({ message: "No fields can be left null." });
+      console.log("Validation failed: No fields can be left null..");
+      return res.status(400).json({ message: "No fields can be left null.." });
   }
 
   const query = `CALL business_supply.add_location(?, ?, ?, ?);`;
@@ -800,18 +883,25 @@ app.post("/api/add-location", async (req, res) => {
 // ADD SERVICE add_service()
 app.post("/api/add-service", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_long_name, ip_home_base, ip_manager } = req.body;
+  const { id, long_name, home_base, manager } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!ip_id || !ip_long_name || !ip_home_base ) {
+  if (!id || !long_name || !home_base ) {
       console.log("Validation failed: Id, name and home base cannot be null.");
       return res.status(400).json({ message: "Id, name and home base cannot be null." });
   }
 
   const query = `CALL business_supply.add_service(?, ?, ?, ?);`;
-  const values = [ip_id, ip_long_name, ip_home_base, ip_manager];
+  const values = [id, long_name, home_base, manager];
 
   try {
       db.query(query, values, (err, results) => {
@@ -843,6 +933,13 @@ app.post("/api/add-service", async (req, res) => {
 app.post("/api/manage-service", async (req, res) => {
   // Map received fields to expected names
   const { username, id } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -884,18 +981,25 @@ app.post("/api/manage-service", async (req, res) => {
 // ADD PRODUCT add_product()
 app.post("/api/add-product", async (req, res) => {
   // Map received fields to expected names
-  const { ip_barcode, ip_name, ip_weight } = req.body;
+  const { barcode, name, weight } = req.body;
+
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!ip_barcode || !ip_name || !ip_weight) {
+  if (!barcode || !name || !weight) {
       console.log("Validation failed: No fields can be null.");
       return res.status(400).json({ message: "No fields can be null." });
   }
 
   const query = `CALL business_supply.add_product(?, ?, ?);`;
-  const values = [ip_barcode, ip_name, ip_weight];
+  const values = [barcode, name, weight];
 
   try {
       db.query(query, values, (err, results) => {
@@ -926,18 +1030,24 @@ app.post("/api/add-product", async (req, res) => {
 // REMOVE PRODUCT remove_product()
 app.post("/api/remove-product", async (req, res) => {
   // Map received fields to expected names
-  const { ip_barcode } = req.body;
+  const { barcode } = req.body;
 
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if (!ip_barcode ) {
+  if (!barcode ) {
       console.log("Validation failed: No field can be null.");
       return res.status(400).json({ message: "No field can be null." });
   }
 
   const query = `CALL business_supply.remove_product(?);`;
-  const values = [ip_barcode];
+  const values = [barcode];
 
   try {
       db.query(query, values, (err, results) => {
@@ -968,18 +1078,25 @@ app.post("/api/remove-product", async (req, res) => {
 // ADD VAN add_van()
 app.post("/api/add-van", async (req, res) => {
   // Map received fields to expected names
-  const { ip_id, ip_tag, ip_fuel, ip_capacity, ip_sales, ip_driven_by } = req.body;
+  const { id, tag, fuel, capacity, sales, driven_by } = req.body;
+
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
   // Validate form fields
-  if ( !ip_id || !ip_tag || !ip_fuel || !ip_capacity || !ip_sales ) {
+  if ( !id || !tag || !fuel || !capacity || !sales ) {
       console.log("Validation failed: Only driven by can be a null field.");
       return res.status(400).json({ message: "Only driven by can be a null field." });
   }
 
   const query = `CALL business_supply.add_van(?, ?, ?, ?, ?, ?);`;
-  const values = [ip_id, ip_tag, ip_fuel, ip_capacity, ip_sales, ip_driven_by];
+  const values = [id, tag, fuel, capacity, sales, driven_by];
 
   try {
       db.query(query, values, (err, results) => {
@@ -1011,6 +1128,13 @@ app.post("/api/add-van", async (req, res) => {
 app.post("/api/load-van", async (req, res) => {
   // Map received fields to expected names
   const { id, tag, barcode, product_amount, price } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1033,7 +1157,7 @@ app.post("/api/load-van", async (req, res) => {
           console.log("Stored procedure raw results:", JSON.stringify(results, null, 2));
 
           // Extract the message from the first result set
-          const procedureMessage = results?.[0]?.[0]?.message;
+          const procedureMessage = Object.values(results[0]?.[0] || {})[0]; // Get the first key-value pair
 
           if (procedureMessage) {
               console.log("Procedure message:", procedureMessage);
@@ -1049,10 +1173,18 @@ app.post("/api/load-van", async (req, res) => {
   }
 });
 
+
 // REFUEL VAN refuel_van()
 app.post("/api/refuel-van", async (req, res) => {
   // Map received fields to expected names
   const { id, tag, fuel } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1095,6 +1227,13 @@ app.post("/api/refuel-van", async (req, res) => {
 app.post("/api/drive-van", async (req, res) => {
   // Map received fields to expected names
   const { id, tag, destination } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1137,6 +1276,13 @@ app.post("/api/drive-van", async (req, res) => {
 app.post("/api/remove-van", async (req, res) => {
   // Map received fields to expected names
   const { id, tag } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1179,6 +1325,13 @@ app.post("/api/remove-van", async (req, res) => {
 app.post("/api/add-business", async (req, res) => {
   // Map received fields to expected names
   const { name, rating, spent, location } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1221,6 +1374,13 @@ app.post("/api/add-business", async (req, res) => {
 app.post("/api/purchase-product", async (req, res) => {
   // Map received fields to expected names
   const { business, id, tag, barcode, quantity } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 
@@ -1263,6 +1423,13 @@ app.post("/api/purchase-product", async (req, res) => {
 app.post("/api/add-worker-role", async (req, res) => {
   // Map received fields to expected names
   const { username } = req.body;
+  
+  // Normalize empty strings to null in the request body
+  Object.keys(req.body).forEach((key) => {
+    if (req.body[key] === '') {
+      req.body[key] = null;
+    }
+  });
 
   console.log("Received data:", req.body);
 

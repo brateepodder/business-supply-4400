@@ -207,7 +207,7 @@ export default function VansPage() {
       setAddVanData((prev) => ({ ...prev, id: value }));
     }
     if (key === "addVanDriver") {
-      setAddVanData((prev) => ({ ...prev, id: value }));
+      setAddVanData((prev) => ({ ...prev, driven_by: value }));
     }
     if (key === "loadVanServiceID") {
       setLoadVanData((prev) => ({ ...prev, id: value }));
@@ -264,8 +264,7 @@ export default function VansPage() {
       !addVanData.tag ||
       !addVanData.fuel ||
       !addVanData.capacity ||
-      !addVanData.sales ||
-      !addVanData.driven_by
+      !addVanData.sales
     ) {
       setAddVanMessage("Only driven by field can be left null.");
 
@@ -336,8 +335,7 @@ export default function VansPage() {
       !loadVanData.product_amount ||
       !loadVanData.price
     ) {
-      setLoadVanData("No fields can be left null.");
-
+      setLoadVanMessage("No fields can be left null.");
       return;
     }
 
@@ -639,7 +637,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"
@@ -648,7 +645,6 @@ export default function VansPage() {
                 onChange={handleAddVanChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Fuel"
                 name="fuel"
@@ -657,7 +653,6 @@ export default function VansPage() {
                 onChange={handleAddVanChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Capacity"
                 name="capacity"
@@ -666,7 +661,6 @@ export default function VansPage() {
                 onChange={handleAddVanChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Sales"
                 name="sales"
@@ -765,7 +759,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"
@@ -792,7 +785,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Number of products"
                 name="product_amount"
@@ -801,7 +793,6 @@ export default function VansPage() {
                 onChange={handleLoadVanChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Price"
                 name="price"
@@ -868,7 +859,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"
@@ -877,7 +867,6 @@ export default function VansPage() {
                 onChange={handleRefuelVanChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Fuel amount"
                 name="fuel"
@@ -949,7 +938,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"
@@ -1036,7 +1024,6 @@ export default function VansPage() {
                 )}
               </Autocomplete>
               <Input
-                required
                 className="flex-1"
                 label="Van Tag"
                 name="tag"

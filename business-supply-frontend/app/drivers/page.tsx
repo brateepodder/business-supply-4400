@@ -267,14 +267,16 @@ export default function DriversPage() {
     e.preventDefault();
     setRemoveDriverRoleMessage(null);
 
+    // Validate input
     if (!removeDriverRoleData.username) {
       setRemoveDriverRoleMessage("All fields are required.");
+
       return;
     }
 
     try {
       const response = await fetch(
-        "http://localhost:" + port + "/api/remove-driver-role",
+        `http://localhost:${port}/api/remove-driver-role`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -284,8 +286,15 @@ export default function DriversPage() {
 
       const result = await response.json();
 
-      setRemoveDriverRoleData(result.message);
-      await fetchDrivers(); // Refresh the drivers table
+      // Update the correct state for the message
+      if (response.ok) {
+        setRemoveDriverRoleMessage(result.message);
+      } else {
+        setRemoveDriverRoleMessage(result.message || "Error removing driver.");
+      }
+
+      // Optionally refresh the driver list
+      await fetchDrivers();
     } catch (error) {
       console.error("Error removing driver:", error);
       setRemoveDriverRoleMessage("Error removing driver.");

@@ -190,7 +190,11 @@ export default function LocationsPage() {
     setAddProductMessage(null);
 
     // Validate form fields
-    if (!removeProductData.barcode) {
+    if (
+      !addProductData.barcode ||
+      !addProductData.name ||
+      !addProductData.weight
+    ) {
       setAddProductMessage("No fields can be left null.");
 
       return;
@@ -283,30 +287,27 @@ export default function LocationsPage() {
               onSubmit={handleAddProductSubmit}
             >
               <Input
-                required
                 className="flex-1"
                 label="Barcode"
                 name="barcode"
                 type="text"
-                value={addProductData.id}
+                value={addProductData.barcode}
                 onChange={handleAddProductChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Name"
                 name="name"
                 type="text"
-                value={addProductData.long_name}
+                value={addProductData.name}
                 onChange={handleAddProductChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Weight"
                 name="weight"
                 type="number"
-                value={addProductData.home_base}
+                value={addProductData.weight}
                 onChange={handleAddProductChange}
               />
               <Button color="primary" type="submit">

@@ -28,9 +28,17 @@ interface Location {
   remaining_capacity: number;
 }
 
+interface allLocation {
+  label: string;
+  x_coord: string;
+  y_coord: string;
+  space: number;
+}
+
 export default function LocationsPage() {
   const { port } = useConfig();
   const [location, setLocations] = useState<Location[]>([]);
+  const [allLocations, setAllLocations] = useState<allLocation[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch the locations data from the backend
@@ -44,9 +52,28 @@ export default function LocationsPage() {
 
       const data = await response.json();
 
-      setLocations(data); // Update state with fetched data
+      setLocations(data);
     } catch (error) {
-      console.error("Error fetching drivers:", error);
+      console.error("Error fetching locations:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch the locations data from the backend
+  const fetchAllLocations = async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:" + port + "/api/all-locations",
+      );
+
+      if (!response.ok) throw new Error("Failed to fetch all locations.");
+
+      const data = await response.json();
+
+      setAllLocations(data); // Update state with fetched data
+    } catch (error) {
+      console.error("Error fetching all locations:", error);
     } finally {
       setLoading(false); // Ensure loading is set to false
     }
@@ -54,7 +81,11 @@ export default function LocationsPage() {
 
   useEffect(() => {
     fetchLocations();
-  }, []); // Runs only once when the component mounts
+  }, []);
+
+  useEffect(() => {
+    fetchAllLocations();
+  }, []);
 
   // ADD LOCATION
   // Handle add_locations() form input change
@@ -110,16 +141,14 @@ export default function LocationsPage() {
 
       console.log("Response from server:", result);
 
-      if (
-        response.ok &&
-        (result.message.includes("successfully") ||
-          result.message.includes("Successfully"))
-      ) {
-        setAddLocationMessage("Successfully removed driver.");
-        await fetchLocations();
+      if (response.ok) {
+        setAddLocationMessage(result.message);
       } else {
-        setAddLocationMessage(result.message || "An error occurred.");
+        setAddLocationMessage(result.message || "Error removing driver.");
       }
+
+      // Optionally refresh the driver list
+      await fetchLocations();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddLocationMessage("Failed to add location.");
@@ -144,7 +173,7 @@ export default function LocationsPage() {
       {loading ? (
         <CircularProgress aria-label="Loading..." />
       ) : (
-        <Table aria-label="Owners List">
+        <Table aria-label="Locations List">
           <TableHeader>
             <TableColumn>LABEL</TableColumn>
             <TableColumn>NAME</TableColumn>
@@ -166,6 +195,41 @@ export default function LocationsPage() {
                 <TableCell>{location.num_vans}</TableCell>
                 <TableCell>{location.van_ids}</TableCell>
                 <TableCell>{location.remaining_capacity}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      <div className="mt-14"> {/* Add a top margin */} </div>
+
+      <h1 className="text-4xl font-bold text-gray-600 text-center my-6">
+        All Locations Table
+      </h1>
+      <p className="text-slate-500 mb-8 text-center">
+        This table displays all locations in the database.
+      </p>
+      <p className="text-slate-500 mb-8 text-center">
+        For each location, it includes the label, x- and y- coordinates, and the
+        space of that location.
+      </p>
+      {loading ? (
+        <CircularProgress aria-label="Loading..." />
+      ) : (
+        <Table aria-label="All Locations List">
+          <TableHeader>
+            <TableColumn>LABEL</TableColumn>
+            <TableColumn>X COORDINATE</TableColumn>
+            <TableColumn>Y COORDINATE</TableColumn>
+            <TableColumn>SPACE</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent={"No rows to display."}>
+            {allLocations.map((location) => (
+              <TableRow key={location.label}>
+                <TableCell>{location.label}</TableCell>
+                <TableCell>{location.x_coord}</TableCell>
+                <TableCell>{location.y_coord}</TableCell>
+                <TableCell>{location.space}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -194,7 +258,6 @@ export default function LocationsPage() {
               onSubmit={handleAddLocationSubmit}
             >
               <Input
-                required
                 className="flex-1"
                 label="Label"
                 name="label"
@@ -203,7 +266,6 @@ export default function LocationsPage() {
                 onChange={handleAddLocationChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="X Coordinate"
                 name="x_coord"
@@ -212,7 +274,6 @@ export default function LocationsPage() {
                 onChange={handleAddLocationChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Y Coordinate"
                 name="y_coord"
@@ -221,7 +282,6 @@ export default function LocationsPage() {
                 onChange={handleAddLocationChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Location Space"
                 name="space"

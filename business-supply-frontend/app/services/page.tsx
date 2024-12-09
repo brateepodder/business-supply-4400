@@ -92,6 +92,40 @@ export default function ServicesPage() {
     },
   });
 
+  let locationList = useAsyncList({
+    async load({ signal, filterText }) {
+      try {
+        // Fetch all usernames without using filterText
+        const response = await fetch(
+          "http://localhost:" + port + "/api/location-names",
+          { signal },
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch locations.");
+
+        const data = await response.json();
+
+        // Filter items locally based on filterText
+        const filteredItems = data
+          .filter((username: string) =>
+            username.toLowerCase().includes(filterText.toLowerCase()),
+          )
+          .map((username: string) => ({
+            label: username,
+            value: username,
+          }));
+
+        return {
+          items: filteredItems,
+        };
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+
+        return { items: [] };
+      }
+    },
+  });
+
   let serviceIDs = useAsyncList({
     async load({ signal, filterText }) {
       try {
@@ -197,8 +231,15 @@ export default function ServicesPage() {
   const handleAutocompleteSelect = (key: string, value: string) => {
     if (key === "manageServiceUsername") {
       setManageServiceData((prev) => ({ ...prev, username: value }));
-    } else if (key === "manageServiceId") {
+    }
+    if (key === "manageServiceId") {
       setManageServiceData((prev) => ({ ...prev, id: value }));
+    }
+    if (key === "addServiceManagerUsername") {
+      setAddServiceData((prev) => ({ ...prev, manager: value }));
+    }
+    if (key === "addServiceLocation") {
+      setAddServiceData((prev) => ({ ...prev, home_base: value }));
     }
   };
 
@@ -232,10 +273,9 @@ export default function ServicesPage() {
     if (
       !addServiceData.id ||
       !addServiceData.long_name ||
-      !addServiceData.home_base ||
-      !addServiceData.manager
+      !addServiceData.home_base
     ) {
-      setAddServiceMessage("No fields can be left null.");
+      setAddServiceMessage("Only manager can be left null.");
 
       return;
     }
@@ -256,12 +296,8 @@ export default function ServicesPage() {
 
       console.log("Response from server:", result);
 
-      if (response.ok) {
-        setAddServiceMessage("Successfully added service.");
-        await fetchServices();
-      } else {
-        setAddServiceMessage(result.message || "An error occured.");
-      }
+      setAddServiceMessage(result.message || "An error occured.");
+      await fetchServices();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddServiceMessage("Failed to add service.");
@@ -333,7 +369,6 @@ export default function ServicesPage() {
               onSubmit={handleAddServiceSubmit}
             >
               <Input
-                required
                 className="flex-1"
                 label="Delivery Service ID"
                 name="id"
@@ -342,7 +377,6 @@ export default function ServicesPage() {
                 onChange={handleAddServiceChange}
               />
               <Input
-                required
                 className="flex-1"
                 label="Business Name"
                 name="long_name"
@@ -350,24 +384,48 @@ export default function ServicesPage() {
                 value={addServiceData.long_name}
                 onChange={handleAddServiceChange}
               />
-              <Input
-                required
+              <Autocomplete
                 className="flex-1"
-                label="Home Base"
-                name="home_base"
-                type="text"
-                value={addServiceData.home_base}
-                onChange={handleAddServiceChange}
-              />
-              <Input
-                required
+                inputValue={locationList.filterText} // Track input value for filtering
+                isLoading={locationList.isLoading} // Show loading state while fetching data
+                items={locationList.items} // Items filtered by the filterText
+                label="Location labels"
+                placeholder="Search for a location"
+                onInputChange={locationList.setFilterText} // Update the filterText on input change
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect(
+                    "addServiceLocation",
+                    selected as string,
+                  )
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
+              <Autocomplete
                 className="flex-1"
-                label="Manager Username"
-                name="manager"
-                type="number"
-                value={addServiceData.manager}
-                onChange={handleAddServiceChange}
-              />
+                inputValue={workerList.filterText}
+                isLoading={workerList.isLoading}
+                items={workerList.items}
+                label="Worker Usernames"
+                placeholder="Search for a username"
+                onInputChange={workerList.setFilterText}
+                onSelectionChange={(selected) =>
+                  handleAutocompleteSelect(
+                    "addServiceManagerUsername",
+                    selected as string,
+                  )
+                }
+              >
+                {(item) => (
+                  <AutocompleteItem key={item.value}>
+                    {item.label}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
               <Button color="primary" type="submit">
                 Add Service
               </Button>
