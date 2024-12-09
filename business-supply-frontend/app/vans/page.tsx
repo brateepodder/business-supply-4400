@@ -216,7 +216,7 @@ export default function VansPage() {
       setLoadVanData((prev) => ({ ...prev, barcode: value }));
     }
     if (key == "refuelVanServiceID") {
-      setLoadVanData((prev) => ({ ...prev, id: value }));
+      setRefuelVanData((prev) => ({ ...prev, id: value }));
     }
     if (key == "driveVanServiceID") {
       setDriveVanData((prev) => ({ ...prev, id: value }));
@@ -336,6 +336,7 @@ export default function VansPage() {
       !loadVanData.price
     ) {
       setLoadVanMessage("No fields can be left null.");
+
       return;
     }
 
@@ -432,7 +433,7 @@ export default function VansPage() {
   // Handle drive_van() form input change
   const handleDriveVanChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDriveVanData({
-      ...driveVandata,
+      ...driveVanData,
       [e.target.name]: e.target.value,
     });
   };
@@ -516,7 +517,7 @@ export default function VansPage() {
 
     // Validate form fields
     if (!removeVanData.id || !removeVanData.tag) {
-      setDriveVanMessage("No fields can be left null.");
+      setRemoveVanMessage("No fields can be left null.");
 
       return;
     }
