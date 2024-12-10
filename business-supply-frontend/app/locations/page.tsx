@@ -117,10 +117,9 @@ export default function LocationsPage() {
     if (
       !addLocationData.label ||
       !addLocationData.x_coord ||
-      !addLocationData.y_coord ||
-      !addLocationData.space
+      !addLocationData.y_coord
     ) {
-      setAddLocationMessage("No fields can be left null.");
+      setAddLocationMessage("No fields can be left null except space.");
 
       return;
     }
