@@ -33,10 +33,18 @@ interface Owner {
   debt: string;
 }
 
+interface Funds {
+  username: string;
+  invested: number;
+  invested_date: string;
+  business: string;
+}
+
 export default function OwnersPage() {
   const { port } = useConfig();
   // State to store owner loading data
   const [owners, setOwners] = useState<Owner[]>([]);
+  const [funds, setFunds] = useState<Funds[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Fetch the owners data from the backend
@@ -59,6 +67,27 @@ export default function OwnersPage() {
 
   useEffect(() => {
     fetchOwners();
+  }, []);
+
+  const fetchFunds = async () => {
+    try {
+      const response = await fetch("http://localhost:" + port + "/api/funds");
+
+      if (!response.ok) throw new Error("Failed to fetch funds");
+
+      const data = await response.json();
+
+      setFunds(data); // Set the owner data into state
+    } catch (error) {
+      console.error(error);
+      setTableFetchError("Failed to load the funds list.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchFunds();
   }, []);
 
   // Use useAsyncList to load all usernames and filter locally
@@ -226,7 +255,12 @@ export default function OwnersPage() {
     e.preventDefault();
     setFundingMessage(null);
 
-    if (!fundingData.owner || !fundingData.amount || !fundingData.business || !fundingData.fundDate) {
+    if (
+      !fundingData.owner ||
+      !fundingData.amount ||
+      !fundingData.business ||
+      !fundingData.fundDate
+    ) {
       setFundingMessage("All fields are required.");
 
       return;
@@ -299,6 +333,47 @@ export default function OwnersPage() {
                 <TableCell>{owner.highs}</TableCell>
                 <TableCell>{owner.lows}</TableCell>
                 <TableCell>{owner.debt}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+
+      <h1 className="text-4xl font-bold text-gray-600 text-center my-6 mt-16">
+        Funds Table
+      </h1>
+      <p className="text-slate-500 mb-8 text-center">
+        This view displays information in the system from the perspective of a
+        fund placed by an owner.
+      </p>
+      <p className="text-slate-500 mb-8 text-center">
+        For each fund, it includes the owner and the business, which is an
+        unique combination in this table. It also includes the amount invested
+        and the date in which the investment happened.
+      </p>
+
+      {/* Display message related to the owners data */}
+      {tableFetchError && (
+        <p className="text-center text-red-500 my-4">{tableFetchError}</p>
+      )}
+
+      {loading ? (
+        <CircularProgress aria-label="Loading..." />
+      ) : (
+        <Table aria-label="Owners List">
+          <TableHeader>
+            <TableColumn>USERNAME</TableColumn>
+            <TableColumn>INVESTED AMOUNT</TableColumn>
+            <TableColumn>INVESTMENT DATE</TableColumn>
+            <TableColumn>BUSINESS NAME</TableColumn>
+          </TableHeader>
+          <TableBody emptyContent={"No rows to display."}>
+            {funds.map((fund) => (
+              <TableRow key={fund.username}>
+                <TableCell>{fund.username}</TableCell>
+                <TableCell>{fund.invested}</TableCell>
+                <TableCell>{fund.invested_date}</TableCell>
+                <TableCell>{fund.business}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -409,7 +484,10 @@ export default function OwnersPage() {
                 placeholder="Search for a username"
                 onInputChange={ownerList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("startFundingUsername", selected as string)
+                  handleAutocompleteSelect(
+                    "startFundingUsername",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (
@@ -435,7 +513,10 @@ export default function OwnersPage() {
                 placeholder="Search for a business name"
                 onInputChange={businessNamesList.setFilterText} // Update the filterText on input change
                 onSelectionChange={(selected) =>
-                  handleAutocompleteSelect("startFundingBusiness", selected as string)
+                  handleAutocompleteSelect(
+                    "startFundingBusiness",
+                    selected as string,
+                  )
                 }
               >
                 {(item) => (

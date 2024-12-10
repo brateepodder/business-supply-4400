@@ -430,6 +430,25 @@ app.get('/api/all-locations', async (req, res) => {
   }
 });
 
+// Funds Table 
+app.get('/api/funds', async (req, res) => {
+  try {
+    const query = 'SELECT * FROM business_supply.fund';
+    console.log('Running query:', query);
+    db.query(query, (err, results) => {
+      if (err) {
+        console.error('Query error:', err);
+        return res.status(500).json({ error: 'Failed to fetch data' });
+      }
+      console.log('Query results:', results);
+      res.json(results);
+    });
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    res.status(500).json({ error: 'Unexpected server error' });
+  }
+});
+
 // STORED PROCEDURES
 
 // ADD OWNER - add_owner()
