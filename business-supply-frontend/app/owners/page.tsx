@@ -319,6 +319,7 @@ export default function OwnersPage() {
           <TableHeader>
             <TableColumn>USERNAME</TableColumn>
             <TableColumn>NAME</TableColumn>
+            <TableColumn>ADDRESS</TableColumn>
             <TableColumn>BUSINESS COUNT</TableColumn>
             <TableColumn>LOCATION COUNT</TableColumn>
             <TableColumn>HIGHEST RATING</TableColumn>
@@ -330,6 +331,7 @@ export default function OwnersPage() {
               <TableRow key={owner.username}>
                 <TableCell>{owner.username}</TableCell>
                 <TableCell>{`${owner.first_name} ${owner.last_name}`}</TableCell>
+                <TableCell>{owner.address}</TableCell>
                 <TableCell>{owner.num_businesses}</TableCell>
                 <TableCell>{owner.num_places}</TableCell>
                 <TableCell>{owner.highs}</TableCell>

@@ -27,7 +27,7 @@ interface Employee {
   hired: string;
   employee_experience: number;
   licenseID: string;
-  driver_experience: number;
+  driving_experience: string;
   manager_status: string;
 }
 
@@ -354,7 +354,7 @@ export default function LocationsPage() {
                 <TableCell>{employee.hired}</TableCell>
                 <TableCell>{employee.employee_experience}</TableCell>
                 <TableCell>{employee.licenseID}</TableCell>
-                <TableCell>{employee.driver_experience}</TableCell>
+                <TableCell>{employee.driving_experience}</TableCell>
                 <TableCell>{employee.manager_status}</TableCell>
               </TableRow>
             ))}
