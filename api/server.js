@@ -867,7 +867,7 @@ app.post("/api/add-location", async (req, res) => {
   // Validate form fields
   if (!label || !x_coord || !y_coord ) {
       console.log("Validation failed: No fields can be left null except space.");
-      return res.status(400).json({ message: "No fields can be left null." });
+      return res.status(400).json({ message: "No fields can be left null except space." });
   }
 
   const query = `CALL business_supply.add_location(?, ?, ?, ?);`;

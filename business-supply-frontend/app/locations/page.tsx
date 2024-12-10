@@ -148,6 +148,7 @@ export default function LocationsPage() {
 
       // Optionally refresh the driver list
       await fetchLocations();
+      await fetchAllLocations();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddLocationMessage("Failed to add location.");
