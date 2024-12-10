@@ -224,6 +224,7 @@ export default function OwnersPage() {
 
       setAddOwnerMessage(result.message || "An error occured.");
       await fetchOwners();
+      await fetchFunds();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddOwnerMessage("Failed to add owner.");
@@ -280,6 +281,7 @@ export default function OwnersPage() {
 
       setFundingMessage(result.message || "An error occured.");
       await fetchOwners();
+      await fetchFunds();
     } catch (error) {
       console.error("Error starting funding:", error);
       setFundingMessage("Failed to start funding.");
