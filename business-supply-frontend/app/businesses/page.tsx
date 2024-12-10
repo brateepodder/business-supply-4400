@@ -304,10 +304,11 @@ export default function BusinessesPage() {
 
       if (response.ok) {
         setAddBusinessMessage(result.message || "An error occured.");
-        await fetchBusinesses();
       } else {
         setAddBusinessMessage(result.message || "An error occured.");
       }
+      await fetchBusinesses();
+      await fetchContains();
     } catch (error) {
       console.error("Error submitting form:", error);
       setAddBusinessMessage("Failed to add van.");
@@ -377,10 +378,11 @@ export default function BusinessesPage() {
 
       if (response.ok) {
         setPurchaseProductMessage(result.message || "An error occured.");
-        await fetchBusinesses();
       } else {
         setPurchaseProductMessage(result.message || "An error occured.");
       }
+      await fetchBusinesses();
+      await fetchContains();
     } catch (error) {
       console.error("Error submitting form:", error);
       setPurchaseProductMessage("Failed to add van.");
