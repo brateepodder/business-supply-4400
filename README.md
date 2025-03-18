@@ -21,6 +21,7 @@ To learn more you can also access our Notion page: https://seemly-digit-e6a.noti
 ## 🚀 How to Use the Website
 ### 1. **Homepage**
    - Access the homepage to view key options for interacting with the database. This homepage shows where each stored procedure and view is located in our webapp.
+
 [![Video demonstrating our homepage](https://img.youtube.com/vi/CC08n1gdk-M/hqdefault.jpg)](https://www.youtube.com/embed/CC08n1gdk-M)
 
 ### 2. **Use our stored procedures**
@@ -32,10 +33,12 @@ To learn more you can also access our Notion page: https://seemly-digit-e6a.noti
 
 ### 4. **Recieve real time responses from the database**
    - In case of any errors with the stored procedure arguments, you will receive real-time feedback on the issues or if it updated successfully.
+
 [![Video demonstrating stored procedures, real-time updates and database updates](https://img.youtube.com/vi/kKT5je1TtwM/hqdefault.jpg)](https://www.youtube.com/embed/kKT5je1TtwM)
 
 ### 5. **Easier searches with autocomplete**
-   - Use our Autocomplete feature (thanks to NextUI) to search up pre-existing information on our database and use that to fill out the procedures form. 
+   - Use our Autocomplete feature (thanks to NextUI) to search up pre-existing information on our database and use that to fill out the procedures form.
+
 [![Video demonstrating autocomplete feature](https://img.youtube.com/vi/rHN_0F8gBYE/hqdefault.jpg)](https://www.youtube.com/embed/rHN_0F8gBYE)
 
 ---
