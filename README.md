@@ -20,9 +20,11 @@ To learn more you can also access our Notion page: https://seemly-digit-e6a.noti
 
 ## 🚀 How to Use the Website
 ### 1. **Homepage**
-   - Access the homepage to view key options for interacting with the database. This homepage shows where each stored procedure and view is located in our webapp. 
-https://github.com/user-attachments/assets/7868aa67-1ba0-427e-b5fb-c0c152928819
-
+   - Access the homepage to view key options for interacting with the database. This homepage shows where each stored procedure and view is located in our webapp.
+ [<img src="[https://img.youtube.com/vi/<VIDEO_ID>/hqdefault.jpg](https://github.com/user-attachments/assets/7868aa67-1ba0-427e-b5fb-c0c152928819
+)" width="600" height="300"
+/>]([https://www.youtube.com/embed/<VIDEO_ID](https://github.com/user-attachments/assets/7868aa67-1ba0-427e-b5fb-c0c152928819
+)
 
 ### 2. **Use our stored procedures**
    - Navigate to the different pages through our navigation bar to interact with our stored procedures. 
